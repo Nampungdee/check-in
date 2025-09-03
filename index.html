@@ -2,65 +2,92 @@
 <html lang="en">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: 'Kanit', sans-serif;
-    background: linear-gradient(to bottom right, #fff, #ffe6f0, #ffd6eb);
-    color: #333;
-  }
+/* ฟอนต์ */
+body {
+  font-family: 'Kanit', sans-serif;
+  background: linear-gradient(135deg, #fff5f8, #ffe0eb, #ffd6e8);
+  color: #333;
+  line-height: 1.6;
+}
 
-  /* การ์ดพื้นหลัง */
-  .bg-slate-800 {
-    background: linear-gradient(135deg, #ff99c8, #ffb3d9) !important;
-  }
-  .bg-slate-100 {
-    background: #fff0f6 !important;
-  }
+/* การ์ดพื้นหลัง */
+.bg-slate-800 {
+  background: linear-gradient(135deg, #ff6f9c, #ff9fba, #ffc3d9) !important;
+  color: #fff !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 6px 15px rgba(255, 128, 170, 0.25);
+}
+.bg-slate-100 {
+  background: #fffafd !important;
+  border-radius: 1.25rem !important;
+  border: 1.5px solid #ffd6e8 !important;
+}
 
-  /* ปุ่มหลัก */
-  button {
-    transition: all 0.3s ease;
-    border-radius: 1rem !important;
-    font-weight: 600;
-  }
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(255, 182, 193, 0.3);
-  }
+/* ปุ่ม */
+button {
+  transition: all 0.25s ease;
+  border-radius: 1.25rem !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(255, 130, 160, 0.3);
+}
 
-  /* ปุ่มหลักสีชมพู */
-  .bg-slate-800 {
-    background: linear-gradient(135deg, #ff85a2, #ffb6c1) !important;
-    color: white !important;
-  }
+/* ปุ่มหลัก */
+.bg-slate-800 {
+  background: linear-gradient(135deg, #ff6b9a, #ff9db8) !important;
+  color: white !important;
+}
 
-  /* ปุ่มถ่ายรูป */
-  .bg-green-500 {
-    background: linear-gradient(135deg, #ffb6c1, #ffcce0) !important;
-    color: #fff !important;
-  }
+/* ปุ่มรอง */
+.bg-gray-300 {
+  background: #ffe6f0 !important;
+  color: #555 !important;
+}
 
-  /* ปุ่มรอง */
-  .bg-gray-300 {
-    background: #ffe6f0 !important;
-    color: #555 !important;
-  }
+/* ปุ่มถ่ายรูป */
+.bg-green-500 {
+  background: linear-gradient(135deg, #ff9fba, #ffcce0) !important;
+  color: #fff !important;
+}
 
-  /* input */
-  input, textarea {
-    border-radius: 1rem !important;
-    border: 2px solid #ffb6c1 !important;
-    background: #fff !important;
-  }
+/* input, textarea */
+input, textarea {
+  border-radius: 1rem !important;
+  border: 2px solid #ffb6c1 !important;
+  background: #fff !important;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+input:focus, textarea:focus {
+  border-color: #ff6f9c !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.3);
+}
 
-  label {
-    color: #ff4d88 !important;
-    font-weight: 600;
-  }
+/* label */
+label {
+  color: #ff4d88 !important;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
 
-  /* ข้อความหัวข้อ */
-  h2, .text-5xl, .font-bold {
-    color: #ff4d88 !important;
-  }
+/* หัวข้อ */
+h2, .text-5xl, .font-bold {
+  color: #ff4d88 !important;
+  letter-spacing: 0.5px;
+}
+
+/* card ใน step ต่างๆ */
+.relative, .submit, .photo {
+  border-radius: 1.5rem !important;
+  background: #fff !important;
+  box-shadow: 0 4px 12px rgba(255, 120, 160, 0.15);
+  padding: 1rem;
+}
 </style>
 
 <head>
