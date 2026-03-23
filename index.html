@@ -154,11 +154,6 @@
           กลับ</button><button class="w-full text-center p-4 rounded-lg bg-slate-800 text-white"
           onclick="checkPictureAndNextStep()">
           ถัดไป
-            <div class="mt-4 shadow-lg">
-        <a href="Report.html" class="block w-full text-center p-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold hover:scale-105 transition-transform">
-           📄 ส่งรายงานเวร (ใบเขียว)
-        </a>
-      </div>
         </button>
       </div>
     </div>
@@ -253,10 +248,6 @@
       document.getElementById("columnBData").value = row[2] || "";
       document.getElementById("columnCData").value = row[3] || "";
       document.getElementById("columnDData").value = row[4] || "";
-
-      // --- เพิ่ม 2 บรรทัดนี้ค่ะ เพื่อให้มือถือจำชื่อและรหัสไว้อัตโนมัติ ---
-      localStorage.setItem('nameId', row[2]);      // จำชื่อ นสพ.
-      localStorage.setItem('keynumberId', row[3]); // จำรหัส นสพ.
     }
     function showLoading(isLoading) {
       const overlay = document.getElementById("loadingOverlay");
