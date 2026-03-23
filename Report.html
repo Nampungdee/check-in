@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
@@ -8,271 +8,134 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Kanit', sans-serif; background-color: #f0fdf4; color: #166534; }
+    body { font-family: 'Kanit', sans-serif; background-color: #f0fdf4; }
     .green-gradient { background: linear-gradient(135deg, #22c55e, #16a34a); }
-    .input-field { border: 2px solid #bbf7d0; border-radius: 1rem; transition: all 0.3s; }
-    .input-field:focus { border-color: #22c55e; ring: 0; outline: none; }
+    .input-field { border: 2px solid #bbf7d0; border-radius: 1rem; transition: all 0.3s; width: 100%; padding: 1rem; }
+    .input-field:focus { border-color: #22c55e; outline: none; background-color: white; }
+    .case-card { border-left: 5px solid #22c55e; background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
   </style>
 </head>
 <body class="pb-10">
-  <div class="max-w-md mx-auto p-6">
+  <div class="max-w-md mx-auto p-4">
     
-    <div class="green-gradient rounded-3xl p-8 text-white text-center shadow-lg mb-6">
-      <h1 class="text-2xl font-bold">บันทึกรายงานเวร</h1>
-      <p class="text-green-100 text-sm opacity-90">Medical Student Daily Report</p>
-      <div class="mt-4 text-3xl font-bold" id="displayTime">00:00</div>
+    <div class="green-gradient rounded-3xl p-6 text-white text-center shadow-lg mb-6">
+      <h1 class="text-xl font-bold uppercase">บันทึกรายงานเวร (ใบเขียว)</h1>
+      <p class="text-green-100 text-xs opacity-90">Dept. of OB-GYN, Naresuan University</p>
     </div>
 
-    <div class="bg-white rounded-3xl p-6 shadow-xl border border-green-100 space-y-5">
-      
-      <div>
-        <label class="block text-sm font-semibold mb-1 ml-1">ชื่อ-นามสกุล นสพ.</label>
-        <input type="text" id="name" class="input-field w-full p-4 bg-gray-50 text-gray-500 font-medium" readonly>
+    <div class="bg-white rounded-3xl p-6 shadow-md mb-4 border border-green-50">
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="text-xs font-bold text-green-700 ml-1">ชื่อ-นามสกุล</label>
+          <input type="text" id="name" class="input-field bg-gray-50 text-gray-500" readonly>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-green-700 ml-1">รหัสนิสิต</label>
+          <input type="text" id="studentId" class="input-field bg-gray-50 text-gray-500" readonly>
+        </div>
       </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 ml-1">รหัส นสพ.</label>
-        <input type="text" id="studentId" class="input-field w-full p-4 bg-gray-50 text-gray-500 font-medium" readonly>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-bold text-green-700 ml-1">วันที่ปฏิบัติงาน</label>
+          <input type="date" id="workDate" class="input-field">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-green-700 ml-1">ช่วงเวลา</label>
+          <select id="shiftTime" class="input-field">
+            <option value="เวรนอกเวลา">เวรนอกเวลา</option>
+            <option value="เวรเช้า">เวรเช้า</option>
+            <option value="เวรบ่าย-ดึก">เวรบ่าย-ดึก</option>
+          </select>
+        </div>
       </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 ml-1 text-green-700">รายละเอียดการปฏิบัติงาน/Case *</label>
-        <textarea id="note" rows="5" class="input-field w-full p-4 placeholder-gray-300" placeholder="พิมพ์สรุปงานหรือเคสที่เจอวันนี้..."></textarea>
-      </div>
-
-      <button onclick="submitReport()" id="btnSubmit" class="w-full green-gradient text-white p-5 rounded-2xl font-bold text-lg shadow-lg hover:scale-[1.02] active:scale-95 transition-all">
-        ส่งข้อมูล (ใบเขียว)
-      </button>
-
-      <button onclick="reRegister()" class="w-full text-gray-400 text-xs text-center mt-2 underline">
-        ไม่ใช่ชื่อคุณ? คลิกเพื่อลงทะเบียนใหม่
-      </button>
-
     </div>
+
+    <div id="caseContainer">
+      </div>
+
+    <button onclick="addCase()" class="w-full border-2 border-dashed border-green-300 text-green-600 p-3 rounded-2xl mb-6 font-bold hover:bg-green-50">
+      + เพิ่มเคส/รายการใหม่
+    </button>
+
+    <button onclick="submitAll()" class="w-full green-gradient text-white p-5 rounded-2xl font-bold text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all">
+      ส่งรายงานทั้งหมด
+    </button>
   </div>
 
   <script src="Config.js"></script>
   <script>
-    // 1. ดึงข้อมูลจากความจำเครื่อง (LocalStorage)
-    window.onload = function() {
-      const savedName = localStorage.getItem('savedName');
-      const savedId = localStorage.getItem('savedId');
+    let caseCount = 0;
 
-      if (!savedName || !savedId) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'ไม่พบข้อมูลการลงทะเบียน',
-          text: 'กรุณาไปสแกนหน้าลงทะเบียนครั้งแรกก่อนนะคะ',
-          confirmButtonText: 'ไปหน้าสแกนหน้า',
-          confirmButtonColor: '#16a34a'
-        }).then(() => {
-          window.location.href = "index.html"; // แก้ชื่อไฟล์เป็นหน้าสแกนหน้าของคุณ
-        });
-      } else {
-        document.getElementById('name').value = savedName;
-        document.getElementById('studentId').value = savedId;
-      }
-      updateTime();
+    window.onload = function() {
+      // ดึงข้อมูลเดิม
+      document.getElementById('name').value = localStorage.getItem('savedName') || "ไม่พบชื่อ";
+      document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
+      document.getElementById('workDate').valueAsDate = new Date();
+      addCase(); // เพิ่มเคสแรกให้อัตโนมัติ
     };
 
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('displayTime').innerText = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    function addCase() {
+      caseCount++;
+      const container = document.getElementById('caseContainer');
+      const div = document.createElement('div');
+      div.className = 'case-card';
+      div.id = `case_${caseCount}`;
+      div.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">เคสที่ ${caseCount}</span>
+          ${caseCount > 1 ? `<button onclick="removeCase(${caseCount})" class="text-red-400 text-xs">ลบออก</button>` : ''}
+        </div>
+        <input type="text" placeholder="ชื่อผู้ป่วย/HN" class="input-field mb-3 case-patient">
+        <input type="text" placeholder="Diagnosis (การวินิจฉัย)" class="input-field mb-3 case-diag">
+        <textarea placeholder="กิจกรรมที่ทำ (P/A/O) / รายละเอียดงาน" rows="3" class="input-field case-note"></textarea>
+      `;
+      container.appendChild(div);
     }
-    setInterval(updateTime, 1000);
 
-    // 2. ฟังก์ชันส่งข้อมูล
-    function submitReport() {
-      const note = document.getElementById('note').value;
-      if (!note) {
-        Swal.fire('กรุณากรอกรายละเอียด', 'อย่าลืมพิมพ์สรุปงานนะคะ', 'error');
+    function removeCase(id) {
+      document.getElementById(`case_${id}`).remove();
+    }
+
+    function submitAll() {
+      const cases = [];
+      const patientNodes = document.querySelectorAll('.case-patient');
+      const diagNodes = document.querySelectorAll('.case-diag');
+      const noteNodes = document.querySelectorAll('.case-note');
+
+      for(let i=0; i<patientNodes.length; i++) {
+        if(noteNodes[i].value) {
+          cases.push({
+            patient: patientNodes[i].value,
+            diag: diagNodes[i].value,
+            note: noteNodes[i].value
+          });
+        }
+      }
+
+      if(cases.length === 0) {
+        Swal.fire('กรุณากรอกข้อมูล', 'อย่างน้อยต้องมี 1 รายการนะคะ', 'error');
         return;
       }
 
-      Swal.fire({
-        title: 'ยืนยันการส่ง?',
-        text: "คุณต้องการส่งรายงานเวรใช่หรือไม่",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#16a34a',
-        confirmButtonText: 'ยืนยัน',
-        cancelButtonText: 'ยกเลิก'
-      }).then((result) => {
-        if (result.isConfirmed) {
-            
-          Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+      Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-          // เตรียมข้อมูลส่งไปที่ Web App ตัวเดิมของคุณ
-          const data = {
-            action: "submitReport", // คุณต้องไปเพิ่มเคสนี้ใน Apps Script ด้วยนะคะ
-            name: document.getElementById('name').value,
-            id: document.getElementById('studentId').value,
-            note: note,
-            job: "ส่งเวร (ใบเขียว)",
-            time: new Date().toLocaleString('th-TH')
-          };
+      const payload = {
+        action: "submitReport",
+        name: document.getElementById('name').value,
+        id: document.getElementById('studentId').value,
+        date: document.getElementById('workDate').value,
+        shift: document.getElementById('shiftTime').value,
+        cases: cases
+      };
 
-          fetch(WEB_APP_URL, { // ใช้ WEB_APP_URL จาก Config.js
-            method: "POST",
-            body: JSON.stringify(data)
-          })
-          .then(res => res.text())
-          .then(response => {
-            Swal.close();
-            Swal.fire('สำเร็จ!', 'บันทึกรายงานเวรเรียบร้อยแล้วค่ะ', 'success').then(() => {
-                document.getElementById('note').value = ""; // เคลียร์ช่องพิมพ์
-            });
-          })
-          .catch(err => {
-            Swal.close();
-            Swal.fire('เกิดข้อผิดพลาด', 'กรุณาลองใหม่อีกครั้ง', 'error');
-          });
-        }
-      });
-    }
-
-    function reRegister() {
-        localStorage.clear();
-        window.location.href = "index.html"; // แก้ชื่อไฟล์เป็นหน้าสแกนหน้าของคุณ
-    }
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ส่งรายงานเวร (ใบเขียว)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Kanit', sans-serif; background-color: #f0fdf4; color: #166534; }
-    .green-gradient { background: linear-gradient(135deg, #22c55e, #16a34a); }
-    .input-field { border: 2px solid #bbf7d0; border-radius: 1rem; transition: all 0.3s; }
-    .input-field:focus { border-color: #22c55e; ring: 0; outline: none; }
-  </style>
-</head>
-<body class="pb-10">
-  <div class="max-w-md mx-auto p-6">
-    
-    <div class="green-gradient rounded-3xl p-8 text-white text-center shadow-lg mb-6">
-      <h1 class="text-2xl font-bold">บันทึกรายงานเวร</h1>
-      <p class="text-green-100 text-sm opacity-90">Medical Student Daily Report</p>
-      <div class="mt-4 text-3xl font-bold" id="displayTime">00:00</div>
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 shadow-xl border border-green-100 space-y-5">
-      
-      <div>
-        <label class="block text-sm font-semibold mb-1 ml-1">ชื่อ-นามสกุล นสพ.</label>
-        <input type="text" id="name" class="input-field w-full p-4 bg-gray-50 text-gray-500 font-medium" readonly>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 ml-1">รหัส นสพ.</label>
-        <input type="text" id="studentId" class="input-field w-full p-4 bg-gray-50 text-gray-500 font-medium" readonly>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 ml-1 text-green-700">รายละเอียดการปฏิบัติงาน/Case *</label>
-        <textarea id="note" rows="5" class="input-field w-full p-4 placeholder-gray-300" placeholder="พิมพ์สรุปงานหรือเคสที่เจอวันนี้..."></textarea>
-      </div>
-
-      <button onclick="submitReport()" id="btnSubmit" class="w-full green-gradient text-white p-5 rounded-2xl font-bold text-lg shadow-lg hover:scale-[1.02] active:scale-95 transition-all">
-        ส่งข้อมูล (ใบเขียว)
-      </button>
-
-      <button onclick="reRegister()" class="w-full text-gray-400 text-xs text-center mt-2 underline">
-        ไม่ใช่ชื่อคุณ? คลิกเพื่อลงทะเบียนใหม่
-      </button>
-
-    </div>
-  </div>
-
-  <script src="Config.js"></script>
-  <script>
-    // 1. ดึงข้อมูลจากความจำเครื่อง (LocalStorage)
-    window.onload = function() {
-      const savedName = localStorage.getItem('savedName');
-      const savedId = localStorage.getItem('savedId');
-
-      if (!savedName || !savedId) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'ไม่พบข้อมูลการลงทะเบียน',
-          text: 'กรุณาไปสแกนหน้าลงทะเบียนครั้งแรกก่อนนะคะ',
-          confirmButtonText: 'ไปหน้าสแกนหน้า',
-          confirmButtonColor: '#16a34a'
-        }).then(() => {
-          window.location.href = "index.html"; // แก้ชื่อไฟล์เป็นหน้าสแกนหน้าของคุณ
+      fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+      .then(res => res.text())
+      .then(response => {
+        Swal.fire('สำเร็จ!', 'บันทึกรายงานเวรเรียบร้อยแล้วค่ะ', 'success').then(() => {
+          window.location.reload();
         });
-      } else {
-        document.getElementById('name').value = savedName;
-        document.getElementById('studentId').value = savedId;
-      }
-      updateTime();
-    };
-
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('displayTime').innerText = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-    }
-    setInterval(updateTime, 1000);
-
-    // 2. ฟังก์ชันส่งข้อมูล
-    function submitReport() {
-      const note = document.getElementById('note').value;
-      if (!note) {
-        Swal.fire('กรุณากรอกรายละเอียด', 'อย่าลืมพิมพ์สรุปงานนะคะ', 'error');
-        return;
-      }
-
-      Swal.fire({
-        title: 'ยืนยันการส่ง?',
-        text: "คุณต้องการส่งรายงานเวรใช่หรือไม่",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#16a34a',
-        confirmButtonText: 'ยืนยัน',
-        cancelButtonText: 'ยกเลิก'
-      }).then((result) => {
-        if (result.isConfirmed) {
-            
-          Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-
-          // เตรียมข้อมูลส่งไปที่ Web App ตัวเดิมของคุณ
-          const data = {
-            action: "submitReport", // คุณต้องไปเพิ่มเคสนี้ใน Apps Script ด้วยนะคะ
-            name: document.getElementById('name').value,
-            id: document.getElementById('studentId').value,
-            note: note,
-            job: "ส่งเวร (ใบเขียว)",
-            time: new Date().toLocaleString('th-TH')
-          };
-
-          fetch(WEB_APP_URL, { // ใช้ WEB_APP_URL จาก Config.js
-            method: "POST",
-            body: JSON.stringify(data)
-          })
-          .then(res => res.text())
-          .then(response => {
-            Swal.close();
-            Swal.fire('สำเร็จ!', 'บันทึกรายงานเวรเรียบร้อยแล้วค่ะ', 'success').then(() => {
-                document.getElementById('note').value = ""; // เคลียร์ช่องพิมพ์
-            });
-          })
-          .catch(err => {
-            Swal.close();
-            Swal.fire('เกิดข้อผิดพลาด', 'กรุณาลองใหม่อีกครั้ง', 'error');
-          });
-        }
-      });
-    }
-
-    function reRegister() {
-        localStorage.clear();
-        window.location.href = "index.html"; // แก้ชื่อไฟล์เป็นหน้าสแกนหน้าของคุณ
+      })
+      .catch(err => Swal.fire('เกิดข้อผิดพลาด', err.toString(), 'error'));
     }
   </script>
 </body>
