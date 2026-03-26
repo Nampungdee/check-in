@@ -7,81 +7,109 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f7f9f7; color: #4a5d4a; }
-        /* สีเขียวมินิมอล */
-        .minimal-green { background-color: #a3b18a; } 
-        .minimal-green-light { background-color: #dad7cd; }
-        .btn-submit { background: linear-gradient(135deg, #a3b18a, #588157); }
+        body { font-family: 'Kanit', sans-serif; background-color: #faf9f6; color: #3d405b; font-size: 18px; } /* ขยายฟอนต์พื้นฐาน */
         
-        .input-field { border: 1.5px solid #dad7cd; border-radius: 12px; transition: all 0.3s; width: 100%; padding: 0.7rem; margin-bottom: 0.5rem; outline: none; background-color: #ffffff; }
-        .input-field:focus { border-color: #a3b18a; box-shadow: 0 0 0 2px rgba(163, 177, 138, 0.2); }
+        /* สีเขียวมินิมอลตุ่น (Muted Olive) */
+        .olive-bg { background-color: #84a59d; } 
+        .btn-olive { background: #84a59d; color: white; }
+        .btn-submit { background: #f28482; color: white; } /* เปลี่ยนสีปุ่มส่งเป็นสีส้มอ่อนเพื่อให้เด่น */
         
-        .case-card { background: white; margin-bottom: 1.2rem; padding: 1.2rem; border-radius: 20px; border: 1px solid #e9ede9; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; }
-        .delete-btn { position: absolute; top: 15px; right: 15px; color: #cca7a2; cursor: pointer; font-size: 1.1rem; transition: color 0.2s; }
-        .delete-btn:hover { color: #e5989b; }
+        .input-field { 
+            border: 2px solid #e0e0e0; 
+            border-radius: 15px; 
+            width: 100%; 
+            padding: 1rem; 
+            margin-bottom: 0.8rem; 
+            font-size: 1.1rem; /* ตัวหนังสือในช่องกรอกใหญ่ขึ้น */
+            outline: none; 
+            background-color: #ffffff; 
+        }
+        .input-field:focus { border-color: #84a59d; }
         
+        .case-card { 
+            background: white; 
+            margin-bottom: 1.5rem; 
+            padding: 1.5rem; 
+            border-radius: 25px; 
+            border: 1px solid #f0efeb; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02); 
+            position: relative; 
+        }
+        .delete-btn { position: absolute; top: 18px; right: 18px; color: #e5989b; font-size: 1.4rem; }
+        
+        .label-text { 
+            font-size: 1rem; /* หัวข้อตัวหนังสือใหญ่ขึ้น */
+            font-weight: 500; 
+            color: #5b6d5b; 
+            margin-left: 0.3rem; 
+            margin-bottom: 0.4rem; 
+            display: block; 
+        }
+        
+        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
         canvas { touch-action: none; cursor: crosshair; }
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .label-text { font-size: 0.75rem; font-weight: 500; color: #588157; margin-left: 0.2rem; margin-bottom: 0.2rem; display: block; }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-20">
     <div id="video-container">
-        <div class="bg-white p-4 rounded-3xl m-4 w-full max-w-sm text-center">
-            <video id="video" width="100%" autoplay playsinline class="rounded-2xl mb-4"></video>
-            <div class="flex gap-3 justify-center">
-                <button onclick="takePhoto()" class="minimal-green text-white px-8 py-3 rounded-xl font-bold">📸 ถ่ายรูป</button>
-                <button onclick="closeCamera()" class="bg-gray-100 text-gray-500 px-6 py-3 rounded-xl font-bold">ปิด</button>
-            </div>
+        <video id="video" width="100%" autoplay playsinline class="max-w-sm rounded-3xl mb-6 shadow-2xl"></video>
+        <div class="flex gap-4">
+            <button onclick="takePhoto()" class="bg-white text-emerald-800 px-10 py-4 rounded-2xl font-bold text-xl">📸 ถ่ายรูป</button>
+            <button onclick="closeCamera()" class="bg-red-400 text-white px-8 py-4 rounded-2xl font-bold text-xl">ปิด</button>
         </div>
         <canvas id="photo-canvas" style="display:none;"></canvas>
     </div>
 
-    <div class="max-w-md mx-auto p-5">
-        <div class="minimal-green rounded-[30px] p-7 text-white text-center shadow-sm mb-6">
-            <h1 class="text-xl font-medium tracking-tight">รายงานเวร (ใบเขียว)</h1>
-            <p class="text-xs opacity-80 mt-1 font-light tracking-widest uppercase">Department of OB-GYN</p>
+    <div class="max-w-md mx-auto p-6">
+        <div class="olive-bg rounded-[35px] p-8 text-white text-center shadow-lg mb-8">
+            <h1 class="text-2xl font-semibold tracking-wide">รายงานเวร (ใบเขียว)</h1>
+            <p class="text-sm opacity-90 mt-2 font-light tracking-[0.2em] uppercase">Obstetrics & Gynecology</p>
         </div>
 
-        <div class="bg-white rounded-[25px] p-6 shadow-sm mb-5 border border-white">
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <div><span class="label-text">ชื่อ นสพ.</span><input type="text" id="name" class="input-field bg-gray-50" readonly></div>
-                <div><span class="label-text">รหัส</span><input type="text" id="studentId" class="input-field bg-gray-50" readonly></div>
+        <div class="bg-white rounded-[30px] p-8 shadow-sm mb-6 border border-white">
+            <div class="mb-4">
+                <span class="label-text">ชื่อ - นามสกุล นสพ.</span>
+                <input type="text" id="name" class="input-field bg-[#faf9f6] text-gray-500" readonly>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div><span class="label-text">วันที่ปฏิบัติงาน</span><input type="date" id="workDate" class="input-field text-sm"></div>
-                <div><span class="label-text">ช่วงเวลา (เช่น 08:00-16:30)</span><input type="text" id="shiftTime" class="input-field text-sm" placeholder="..."></div>
+            <div class="mb-4">
+                <span class="label-text">รหัสประจำตัวนิสิต</span>
+                <input type="text" id="studentId" class="input-field bg-[#faf9f6] text-gray-500" readonly>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><span class="label-text">วันที่</span><input type="date" id="workDate" class="input-field"></div>
+                <div><span class="label-text">ช่วงเวลาเวร</span><input type="text" id="shiftTime" class="input-field" placeholder="08:00-..."></div>
             </div>
         </div>
 
         <div id="caseContainer"></div>
         
-        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#dad7cd] text-[#a3b18a] p-3 rounded-2xl mb-8 font-medium hover:bg-white transition-all">
-            <i class="fas fa-plus-circle mr-1"></i> เพิ่มรายการใหม่
+        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#d6d6d6] text-[#84a59d] p-4 rounded-2xl mb-10 font-medium text-lg hover:bg-white transition-all">
+            <i class="fas fa-plus-circle mr-2"></i> เพิ่มรายการคนไข้
         </button>
 
-        <div class="bg-white rounded-[25px] p-6 shadow-sm mb-5 border border-white text-center">
-            <label class="label-text mb-2 text-center">อาจารย์ผู้ควบคุมลงนาม</label>
-            <div class="bg-gray-50 rounded-2xl border border-dashed border-[#dad7cd] overflow-hidden">
-                <canvas id="signature-pad" class="w-full h-32"></canvas>
+        <div class="bg-white rounded-[30px] p-8 shadow-sm mb-6 border border-white text-center">
+            <label class="label-text mb-3 uppercase tracking-wider text-center">อาจารย์ผู้ควบคุมลงนาม</label>
+            <div class="bg-[#faf9f6] rounded-2xl border-2 border-dashed border-[#e0e0e0] overflow-hidden">
+                <canvas id="signature-pad" class="w-full h-40"></canvas>
             </div>
-            <button type="button" onclick="signaturePad.clear()" class="text-[10px] text-gray-400 mt-2 hover:text-red-400 transition-colors">ล้างลายเซ็น</button>
+            <button type="button" onclick="signaturePad.clear()" class="text-sm text-gray-400 mt-3 hover:text-red-400">ล้างลายเซ็นแล้วเขียนใหม่</button>
         </div>
 
-        <div class="mb-8 text-center">
-            <div id="preview-photo" class="hidden mb-4 mx-auto w-36 h-36 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-100">
+        <div class="mb-10 text-center">
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-8 border-white shadow-xl overflow-hidden bg-gray-100">
                 <img id="face-img" src="" class="w-full h-full object-cover">
             </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#588157] border border-[#dad7cd] p-4 rounded-2xl font-medium shadow-sm active:scale-95 transition-all">
-                <i class="fas fa-camera mr-2"></i> สแกนหน้ายืนยันตัวตน
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#84a59d] border-2 border-[#84a59d] p-5 rounded-3xl font-semibold text-lg shadow-sm">
+                <i class="fas fa-camera mr-2"></i> ถ่ายรูปสแกนหน้าออก
             </button>
         </div>
 
-        <button onclick="submitAll()" class="w-full btn-submit text-white p-5 rounded-[22px] font-medium text-lg shadow-lg active:scale-95 transition-all">ส่งบันทึกรายงาน</button>
+        <button onclick="submitAll()" class="w-full btn-submit p-6 rounded-[25px] font-semibold text-2xl shadow-xl active:scale-95 transition-all">
+            บันทึกข้อมูลทั้งหมด
+        </button>
     </div>
 
     <script src="Config.js"></script>
@@ -109,21 +137,19 @@
             
             div.innerHTML = `
                 ${deleteHtml}
-                <div class="text-[10px] font-bold text-[#a3b18a] mb-2 uppercase tracking-widest">Case #${caseCount}</div>
+                <div class="text-xs font-bold text-[#84a59d] mb-3 uppercase tracking-[0.2em]">Record #${caseCount}</div>
                 <span class="label-text">ชื่อผู้ป่วย / HN</span>
                 <input type="text" placeholder="..." class="input-field case-patient">
                 
                 <span class="label-text">โรคที่ได้รับการวินิจฉัย (Diagnosis)</span>
-                <textarea placeholder="..." rows="3" class="input-field case-diag py-3"></textarea>
+                <textarea placeholder="..." rows="3" class="input-field case-diag py-4"></textarea>
                 
-                <span class="label-text">กิจกรรมที่ปฏิบัติ</span>
-                <select class="input-field case-note text-sm">
-                    <option value="">-- เลือกกิจกรรม --</option>
-                    <option value="Observing (เฝ้าสังเกตการณ์)">Observing (เฝ้าสังเกตการณ์)</option>
-                    <option value="Assisting (ช่วยหัตถการ/ผ่าตัด)">Assisting (ช่วยหัตถการ/ผ่าตัด)</option>
-                    <option value="Performing (ทำหัตถการเอง)">Performing (ทำหัตถการเอง)</option>
-                    <option value="Case Presentation (นำเสนอเคส)">Case Presentation (นำเสนอเคส)</option>
-                    <option value="Counseling (ให้คำปรึกษา)">Counseling (ให้คำปรึกษา)</option>
+                <span class="label-text">กิจกรรมที่ปฏิบัติ (P/A/O)</span>
+                <select class="input-field case-note">
+                    <option value="">-- เลือก --</option>
+                    <option value="P">P (Performing)</option>
+                    <option value="A">A (Assisting)</option>
+                    <option value="O">O (Observing)</option>
                 </select>
             `;
             container.appendChild(div);
@@ -135,7 +161,7 @@
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('video').srcObject = stream;
             } catch (err) {
-                Swal.fire('เข้าถึงกล้องไม่ได้', 'กรุณาอนุญาตการเข้าถึงกล้องนะคะ', 'error');
+                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้', 'error');
                 document.getElementById('video-container').style.display = 'none';
             }
         }
@@ -153,7 +179,7 @@
             faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('face-img').src = faceBase64;
             document.getElementById('preview-photo').classList.remove('hidden');
-            document.getElementById('camera-btn').innerHTML = `<i class="fas fa-check-circle mr-2"></i> สแกนหน้าสำเร็จ (ถ่ายใหม่กดที่นี่)`;
+            document.getElementById('camera-btn').innerHTML = `<i class="fas fa-check-circle mr-2"></i> สแกนเรียบร้อย (กดถ่ายใหม่ได้)`;
             closeCamera();
         }
 
@@ -164,11 +190,11 @@
                 note: document.querySelectorAll('.case-note')[i].value
             })).filter(c => c.note !== "");
 
-            if (cases.length === 0) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาเลือกกิจกรรมอย่างน้อย 1 เคสค่ะ', 'warning');
-            if (signaturePad.isEmpty()) return Swal.fire('ขาดลายเซ็น', 'อาจารย์ยังไม่ได้ลงนามค่ะ', 'warning');
-            if (!faceBase64) return Swal.fire('ยังไม่ได้สแกนหน้า', 'กรุณาสแกนหน้าเพื่อยืนยันการเช็คเอาท์ค่ะ', 'warning');
+            if (cases.length === 0 || !faceBase64 || signaturePad.isEmpty()) {
+                return Swal.fire({ icon: 'warning', title: 'กรอกข้อมูลไม่ครบนะคะ', text: 'ต้องมีอย่างน้อย 1 รายการงาน ถ่ายรูป และเซ็นชื่อค่ะ', confirmButtonColor: '#84a59d' });
+            }
 
-            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const payload = {
                 action: "submitReport",
@@ -182,8 +208,8 @@
             };
 
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-            .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกเรียบร้อยแล้วค่ะ', timer: 2000 }).then(() => location.reload()))
-            .catch(err => Swal.fire('ผิดพลาด', 'ลองส่งใหม่อีกครั้งนะคะ', 'error'));
+            .then(() => Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', timer: 2000 }).then(() => location.reload()))
+            .catch(err => Swal.fire('Error', 'ลองใหม่อีกครั้งนะคะ', 'error'));
         }
     </script>
 </body>
