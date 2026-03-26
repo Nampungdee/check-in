@@ -127,17 +127,26 @@
 
         async function openCamera() {
             try {
+                // เช็คก่อนว่า Browser รองรับกล้องไหม
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("Browser นี้ไม่รองรับการเข้าถึงกล้อง");
+                }
+
                 document.getElementById('video-container').style.display = 'flex';
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user" } 
+                });
                 document.getElementById('video').srcObject = stream;
             } catch (err) {
-                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้', 'error');
+                console.error("Camera Error:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถเปิดกล้องได้',
+                    text: 'หากใช้คอมพิวเตอร์ กรุณาเช็คว่าเสียบกล้องหรือยัง หรือกด "อนุญาต" ให้เข้าถึงกล้องที่มุมบนของ Browser นะคะ',
+                    confirmButtonColor: '#84a59d'
+                });
+                document.getElementById('video-container').style.display = 'none';
             }
-        }
-
-        function closeCamera() {
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
         }
 
         function takePhoto() {
