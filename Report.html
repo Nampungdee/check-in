@@ -7,192 +7,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #faf9f6; color: #2d3436; font-size: 18px; }
-        
-        /* สีเขียวมินิมอลตุ่นที่เลือกไว้ */
+        body { font-family: 'Kanit', sans-serif; background-color: #faf9f6; color: #1a1a1a; }
         .olive-bg { background-color: #84a59d; } 
-        .btn-submit { background: #e07a5f; color: white; } /* สีปุ่มส่งที่ชัดเจน */
-        
+        .btn-submit { background-color: #e07a5f; color: white; }
         .input-field { 
-            border: 2px solid #ced4da; /* ขอบชัดขึ้น */
-            border-radius: 15px; 
-            width: 100%; 
-            padding: 1rem; 
-            margin-bottom: 0.8rem; 
-            font-size: 1.15rem; /* ตัวหนังสือในช่องใหญ่และชัด */
-            font-weight: 500;
-            outline: none; 
-            background-color: #ffffff; 
-            color: #2d3436;
+            border: 2px solid #bdc3c7; border-radius: 16px; width: 100%; padding: 1rem; 
+            margin-bottom: 0.8rem; font-size: 1.2rem; font-weight: 500; outline: none; background-color: #ffffff;
         }
         .input-field:focus { border-color: #84a59d; box-shadow: 0 0 0 3px rgba(132, 165, 157, 0.2); }
-        
         .case-card { 
-            background: white; 
-            margin-bottom: 1.5rem; 
-            padding: 1.8rem; 
-            border-radius: 25px; 
-            border: 2px solid #f1f3f5; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.04); 
-            position: relative; 
+            background: white; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 25px; 
+            border: 2px solid #edf2f4; border-left: 10px solid #84a59d; position: relative;
         }
-        .delete-btn { position: absolute; top: 20px; right: 20px; color: #d63031; font-size: 1.5rem; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; color: #d63031; font-size: 1.6rem; padding: 5px; }
+        .label-text { font-size: 1.1rem; font-weight: 700; color: #2d3436; margin-bottom: 0.5rem; display: block; }
         
-        .label-text { 
-            font-size: 1.1rem; /* หัวข้อชัดเจนมาก */
-            font-weight: 600; 
-            color: #34495e; 
-            margin-left: 0.2rem; 
-            margin-bottom: 0.5rem; 
-            display: block; 
-        }
-        
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        canvas { touch-action: none; cursor: crosshair; }
-        
-        .header-title { line-height: 1.4; }
+        /* สไตล์พิเศษสำหรับช่องเซ็นชื่อ */
+        #signature-pad { border: 2px dashed #bdc3c7; border-radius: 20px; background-color: #f8f9fa; cursor: crosshair; touch-action: none; }
+        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-20 px-4">
+
     <div id="video-container">
-        <video id="video" width="100%" autoplay playsinline class="max-w-sm rounded-3xl mb-8 border-4 border-white"></video>
+        <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-[#2d3436] px-10 py-5 rounded-2xl font-bold text-xl shadow-xl">📸 กดถ่ายรูป</button>
-            <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-5 rounded-2xl font-bold text-xl">ปิด</button>
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl">📸 ถ่ายรูป</button>
+            <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold text-xl">ปิด</button>
         </div>
         <canvas id="photo-canvas" style="display:none;"></canvas>
     </div>
 
-    <div class="max-w-md mx-auto p-6">
-        <div class="olive-bg rounded-[40px] p-8 text-white text-center shadow-lg mb-8 header-title">
-            <h1 class="text-xl font-semibold mb-2">แบบฟอร์มรายงานกิจกรรม<br>ขณะปฏิบัติงานนอกเวลาราชการ</h1>
-            <p class="text-lg font-medium opacity-95 mb-2">นักศึกษาแพทย์ปีที่ 5 มหาวิทยาลัยนเรศวร</p>
-            <p class="text-sm font-light tracking-widest uppercase border-t border-white/30 pt-2 inline-block">กลุ่มงานสูติ-นรีเวชกรรม</p>
-        </div>
-
-        <div class="bg-white rounded-[30px] p-8 shadow-sm mb-6 border border-white">
-            <div class="mb-5">
-                <span class="label-text">ชื่อ - นามสกุล นสพ.</span>
-                <input type="text" id="name" class="input-field bg-[#f8f9fa] text-[#495057]" readonly>
-            </div>
-            <div class="mb-5">
-                <span class="label-text">รหัสประจำตัวนิสิต</span>
-                <input type="text" id="studentId" class="input-field bg-[#f8f9fa] text-[#495057]" readonly>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div><span class="label-text">วันที่ปฏิบัติงาน</span><input type="date" id="workDate" class="input-field"></div>
-                <div><span class="label-text">ช่วงเวลาเวร</span><input type="text" id="shiftTime" class="input-field" placeholder="เช่น 08:00-00:00"></div>
-            </div>
-        </div>
-
-        <div id="caseContainer"></div>
-        
-        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#84a59d] text-[#84a59d] p-5 rounded-2xl mb-12 font-bold text-xl hover:bg-white transition-all shadow-sm">
-            <i class="fas fa-plus-circle mr-2"></i> เพิ่มรายการคนไข้
-        </button>
-
-        <div class="bg-white rounded-[35px] p-8 shadow-sm mb-8 border-2 border-white text-center">
-            <label class="label-text mb-4 uppercase tracking-widest text-center">อาจารย์ผู้ควบคุมลงนาม</label>
-            <div class="bg-[#f8f9fa] rounded-2xl border-2 border-dashed border-[#dee2e6] overflow-hidden">
-                <canvas id="signature-pad" class="w-full h-48"></canvas>
-            </div>
-            <button type="button" onclick="signaturePad.clear()" class="text-base text-red-400 mt-4 font-medium hover:underline">ล้างลายเซ็นแล้วเขียนใหม่</button>
-        </div>
-
-        <div class="mb-12 text-center">
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-44 h-44 rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-gray-100">
-                <img id="face-img" src="" class="w-full h-full object-cover">
-            </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#84a59d] border-2 border-[#84a59d] p-6 rounded-3xl font-bold text-xl shadow-md active:scale-95 transition-all">
-                <i class="fas fa-camera mr-2"></i> ถ่ายรูปสแกนหน้าออก (Check-out)
-            </button>
-        </div>
-
-        <button onclick="submitAll()" class="w-full btn-submit p-7 rounded-[30px] font-bold text-2xl shadow-2xl active:scale-95 transition-all">
-            บันทึกข้อมูลและส่งรายงาน
-        </button>
-    </div>
-
-    <script src="Config.js"></script>
-    <script>
-        let signaturePad, stream, faceBase64 = "";
-        let caseCount = 0;
-
-        window.onload = () => {
-            document.getElementById('name').value = localStorage.getItem('savedName') || "";
-            document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
-            document.getElementById('workDate').valueAsDate = new Date();
-            const canvas = document.getElementById('signature-pad');
-            const resizeCanvas = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
-            resizeCanvas();
-            signaturePad = new SignaturePad(canvas);
-            addCase(true); 
-        };
-
-        function addCase(isFirst = false) {
-            caseCount++;
-            const container = document.getElementById('caseContainer');
-            const div = document.createElement('div');
-            div.className = 'case-card border-l-[8px] border-l-[#84a59d]'; // เพิ่มแถบสีข้างกล่องให้ชัดขึ้น
-            const deleteHtml = isFirst ? "" : `<div class="delete-btn" onclick="this.parentElement.remove()"><i class="fas fa-trash-alt"></i></div>`;
-            
-            div.innerHTML = `
-                ${deleteHtml}
-                <div class="text-sm font-bold text-[#84a59d] mb-4 uppercase tracking-[0.25em] bg-[#f0f4f3] inline-block px-3 py-1 rounded-lg">Case #${caseCount}</div>
-                
-                <span class="label-text">ชื่อผู้ป่วย / HN</span>
-                <input type="text" placeholder="ระบุชื่อหรือ HN..." class="input-field case-patient">
-                
-                <span class="label-text">โรคที่ได้รับการวินิจฉัย (Diagnosis)</span>
-                <textarea placeholder="ระบุการวินิจฉัย..." rows="3" class="input-field case-diag py-4"></textarea>
-                
-                <span class="label-text">กิจกรรมที่ปฏิบัติ (P / A / O)</span>
-                <select class="input-field case-note font-bold text-[#2d3436]">
-                    <option value="">-- กรุณาเลือก --</option>
-                    <option value="P">P (Performing - ทำด้วยตนเอง)</option>
-                    <option value="A">A (Assisting - ช่วยทำหัตถการ)</option>
-                    <option value="O">O (Observing - สังเกตการณ์)</option>
-                </select>
-            `;
-            container.appendChild(div);
-        }
-
-        async function openCamera() {
-            try {
-                document.getElementById('video-container').style.display = 'flex';
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                document.getElementById('video').srcObject = stream;
-            } catch (err) {
-                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาอนุญาตกล้องนะคะ', 'error');
-                document.getElementById('video-container').style.display = 'none';
-            }
-        }
-
-        function closeCamera() {
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
-        }
-
-        function takePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('photo-canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
-            document.getElementById('face-img').src = faceBase64;
-            document.getElementById('preview-photo').classList.remove('hidden');
-            document.getElementById('camera-btn').innerHTML = `<i class="fas fa-check-circle mr-2"></i> สแกนหน้าเรียบร้อยแล้ว`;
-            closeCamera();
-        }
-
-        async function submitAll() {
-            const cases = Array.from(document.querySelectorAll('.case-patient')).map((el, i) => ({
-                patient: el.value,
-                diag: document.querySelectorAll('.case-diag')[i].value,
-                note: document.querySelectorAll('.case-note')[i].value
-            })).filter(c => c.note.trim() !== "");
-
-            if (cases.length === 0) return
+    <div class="max-w-md mx-auto pt-6">
+        <div class="olive-bg rounded-[35px] p-8 text-white text-center shadow-lg mb-8">
+            <h1 class="text-xl font-bold leading-tight">แบบ
