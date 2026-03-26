@@ -10,26 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f0fdf4; color: #1a1a1a; }
-        .mint-bg { background-color: #2dd4bf; } /* สีเขียวมิ้นต์สดใส */
+        body { font-family: 'Kanit', sans-serif; background-color: #f0fdfa; color: #1e293b; touch-action: manipulation; }
+        .mint-bg { background-color: #2dd4bf; }
         .btn-submit { background-color: #0d9488; color: white; }
         .input-field { 
             border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 1rem; 
             margin-bottom: 0.8rem; font-size: 1.1rem; outline: none; background-color: #ffffff;
         }
-        .input-field:focus { border-color: #2dd4bf; }
         .case-card { 
             background: white; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 25px; 
-            border: 1px solid #ccfbf1; border-left: 8px solid #2dd4bf; position: relative;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
-        .label-text { font-size: 1.1rem; font-weight: 700; color: #0f766e; margin-bottom: 0.4rem; display: block; }
-        #signature-pad { 
-            border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; 
-            width: 100%; height: 180px; touch-action: none; 
-        }
+        .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
+        #signature-pad { border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; width: 100%; height: 180px; touch-action: none; }
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .disabled-btn { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .disabled-btn { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
     </style>
 </head>
 <body class="pb-20 px-4">
@@ -47,7 +42,6 @@
         <div class="mint-bg rounded-[35px] p-8 text-white text-center shadow-lg mb-8">
             <h1 class="text-xl font-bold leading-tight">แบบฟอร์มรายงานกิจกรรม<br>ปฏิบัติงานนอกเวลาราชการ</h1>
             <p class="text-lg font-medium mt-2">นสพ. ปี 5 มหาวิทยาลัยนเรศวร</p>
-            <p class="text-xs mt-3 opacity-90 border-t border-white/30 pt-3 tracking-widest uppercase">OBSTETRICS AND GYNECOLOGY</p>
         </div>
 
         <div class="bg-white rounded-[30px] p-6 shadow-sm mb-6 border-2 border-white">
@@ -68,7 +62,6 @@
             <label class="label-text text-center text-lg mb-4">อาจารย์ผู้ควบคุมลงนาม</label>
             <canvas id="signature-pad"></canvas>
             <button type="button" onclick="clearSig()" class="w-full text-red-400 mt-2 text-sm underline">ล้างลายเซ็น</button>
-            
             <div class="mt-6">
                 <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
                 <input type="text" id="staffName" class="input-field" placeholder="นพ./พญ. ....................." oninput="checkCompletion()">
@@ -81,11 +74,11 @@
                 <img id="face-img" src="" class="w-full h-full object-cover">
             </div>
             <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-2 border-[#0d9488] p-5 rounded-3xl font-bold disabled-btn">
-                <i class="fas fa-camera mr-2"></i> สแกนหน้ายืนยันตัวตน (Check-out)
+                📸 สแกนหน้ายืนยันตัวตน
             </button>
         </div>
 
-        <button id="submit-btn" onclick="submitAll()" class="w-full btn-submit p-6 rounded-[30px] font-bold text-xl shadow-lg active:scale-95 transition-all disabled-btn">ส่งรายงานฉบับสมบูรณ์</button>
+        <button id="submit-btn" onclick="submitAll()" class="w-full btn-submit p-6 rounded-[30px] font-bold text-xl shadow-lg disabled-btn">ส่งรายงาน</button>
     </div>
 
     <script src="Config.js"></script>
@@ -97,7 +90,6 @@
             document.getElementById('name').value = localStorage.getItem('savedName') || "";
             document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
             document.getElementById('workDate').valueAsDate = new Date();
-            
             const canvas = document.getElementById('signature-pad');
             const resizeCanvas = () => {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -107,21 +99,17 @@
             };
             window.addEventListener("resize", resizeCanvas);
             resizeCanvas();
-            signaturePad = new SignaturePad(canvas, {
-                onEnd: () => checkCompletion()
-            });
+            signaturePad = new SignaturePad(canvas, { onEnd: () => checkCompletion() });
             addCase(true); 
         };
 
-        function clearSig() {
-            signaturePad.clear();
-            checkCompletion();
-        }
+        function clearSig() { signaturePad.clear(); checkCompletion(); }
 
         function checkCompletion() {
             const hasSig = !signaturePad.isEmpty();
-            const hasStaffName = document.getElementById('staffName').value.trim().length > 5;
+            const hasStaffName = document.getElementById('staffName').value.trim().length > 3;
             const camBtn = document.getElementById('camera-btn');
+            const submitBtn = document.getElementById('submit-btn');
             const lockMsg = document.getElementById('lock-msg');
 
             if (hasSig && hasStaffName) {
@@ -132,8 +120,6 @@
                 lockMsg.classList.remove('hidden');
             }
             
-            // เช็คปุ่มส่ง
-            const submitBtn = document.getElementById('submit-btn');
             if (hasSig && hasStaffName && faceBase64) {
                 submitBtn.classList.remove('disabled-btn');
             } else {
@@ -147,7 +133,7 @@
             const div = document.createElement('div');
             div.className = 'case-card';
             const del = isFirst ? "" : `<div style="position:absolute;top:10px;right:15px;color:#94a3b8;" onclick="this.parentElement.remove()">×</div>`;
-            div.innerHTML = `${del}<div class="text-[10px] font-bold text-[#2dd4bf] mb-2 uppercase tracking-widest">Case #${caseCount}</div><label class="label-text">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field case-patient"><label class="label-text">Diagnosis</label><textarea rows="2" class="input-field case-diag"></textarea><label class="label-text">กิจกรรม</label><select class="input-field case-note font-bold"><option value="">-- เลือก --</option><option value="P">P (Performing)</option><option value="A">A (Assisting)</option><option value="O">O (Observing)</option></select>`;
+            div.innerHTML = `${del}<label class="label-text text-teal-500">Case #${caseCount}</label><label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field case-patient"><label class="label-text text-sm">Diagnosis</label><textarea rows="2" class="input-field case-diag"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field case-note font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
             container.appendChild(div);
         }
 
@@ -156,7 +142,7 @@
                 document.getElementById('video-container').style.display = 'flex';
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('video').srcObject = stream;
-            } catch (err) { Swal.fire('Error', 'กล้องไม่ทำงาน', 'error'); }
+            } catch (err) { Swal.fire('Error', 'เข้าถึงกล้องไม่ได้', 'error'); }
         }
 
         function closeCamera() {
@@ -192,16 +178,4 @@
                 id: document.getElementById('studentId').value,
                 date: document.getElementById('workDate').value,
                 shift: document.getElementById('shiftTime').value,
-                signature: signaturePad.toDataURL(),
-                staffName: document.getElementById('staffName').value, // ส่งชื่ออาจารย์ไปด้วย
-                faceImage: faceBase64,
-                cases: cases
-            };
-
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-            .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!', timer: 2000 }).then(() => location.reload()))
-            .catch(() => Swal.fire('Error', 'ลองใหม่อีกครั้งค่ะ', 'error'));
-        }
-    </script>
-</body>
-</html>
+                signature: signaturePad.
