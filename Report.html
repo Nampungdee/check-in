@@ -8,24 +8,22 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Kanit', sans-serif; background-color: #f0fdfa; color: #1e293b; }
         .mint-bg { background-color: #2dd4bf; }
-        .btn-teal { background-color: #0d9488; color: white; }
+        .btn-teal { background-color: #0d9488; color: white; border-radius: 20px; }
         .input-field { 
             border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 1rem; 
             margin-bottom: 0.8rem; font-size: 1.1rem; outline: none; background-color: #ffffff;
         }
-        .input-field:focus { border-color: #2dd4bf; box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1); }
         .case-card { 
             background: white; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 25px; 
-            border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative;
         }
         .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
         #signature-pad { border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; width: 100%; height: 180px; touch-action: none; }
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .disabled-btn { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        .disabled-btn { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
     </style>
 </head>
 <body class="pb-20 px-4">
@@ -33,16 +31,16 @@
     <div id="video-container">
         <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold">📸 ถ่ายรูป</button>
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl">📸 ถ่ายรูป</button>
             <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold">ปิด</button>
         </div>
         <canvas id="photo-canvas" style="display:none;"></canvas>
     </div>
 
     <div class="max-w-md mx-auto pt-6">
-        <div class="mint-bg rounded-[35px] p-8 text-white text-center shadow-lg mb-8">
-            <h1 class="text-xl font-bold leading-tight">แบบฟอร์มรายงานกิจกรรม</h1>
-            <p class="text-lg font-medium mt-2">นสพ. ปี 5 มหาวิทยาลัยนเรศวร</p>
+        <div class="mint-bg rounded-[40px] p-8 text-white text-center shadow-lg mb-8">
+            <h1 class="text-2xl font-bold">แบบฟอร์มรายงานกิจกรรม</h1>
+            <p class="text-lg opacity-90">นสพ. ปี 5 มหาวิทยาลัยนเรศวร</p>
         </div>
 
         <div class="bg-white rounded-[30px] p-6 shadow-sm mb-6 border-2 border-white">
@@ -57,29 +55,29 @@
         </div>
 
         <div id="caseContainer"></div>
-        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-4 rounded-2xl mb-10 font-bold bg-white">+ เพิ่มรายการคนไข้</button>
+        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-5 rounded-3xl mb-10 font-bold bg-white shadow-sm">+ เพิ่มรายการคนไข้</button>
 
         <div class="bg-white rounded-[30px] p-6 shadow-sm mb-10 border-2 border-white">
-            <label class="label-text text-center text-lg mb-4">อาจารย์ผู้ควบคุมลงนาม</label>
+            <label class="label-text text-center text-xl mb-4 text-teal-700">อาจารย์ผู้ควบคุมลงนาม</label>
             <canvas id="signature-pad"></canvas>
-            <button type="button" onclick="clearSig()" class="w-full text-red-400 mt-2 text-sm underline">ล้างลายเซ็น</button>
+            <button type="button" onclick="clearSig()" class="w-full text-red-400 mt-4 text-sm underline">ล้างลายเซ็น</button>
             <div class="mt-6">
                 <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
-                <input type="text" id="staffName" class="input-field" placeholder="นพ./พญ. ....................." oninput="checkCompletion()">
+                <input type="text" id="staffName" class="input-field" placeholder="ระบุชื่ออาจารย์" oninput="checkCompletion()">
             </div>
         </div>
 
         <div class="mb-12 text-center">
-            <p id="lock-msg" class="text-red-500 text-sm mb-2 font-bold animate-pulse">⚠️ กรุณาให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white shadow-lg overflow-hidden">
+            <p id="lock-msg" class="text-red-500 text-sm mb-4 font-bold bg-red-50 p-2 rounded-xl">⚠️ ต้องให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-gray-100">
                 <img id="face-img" src="" class="w-full h-full object-cover">
             </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-2 border-[#0d9488] p-5 rounded-3xl font-bold disabled-btn">
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">
                 📸 สแกนหน้ายืนยันตัวตน
             </button>
         </div>
 
-        <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-6 rounded-[30px] font-bold text-xl shadow-lg disabled-btn">บันทึกและส่งรายงาน</button>
+        <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl disabled-btn">บันทึกและส่งรายงาน</button>
     </div>
 
     <script src="Config.js"></script>
@@ -100,7 +98,7 @@
             };
             window.addEventListener("resize", resizeCanvas);
             resizeCanvas();
-            signaturePad = new SignaturePad(canvas, { onEnd: () => checkCompletion() });
+            signaturePad = new SignaturePad(canvas, { onEnd: checkCompletion });
             addCase(true); 
         };
 
@@ -113,7 +111,6 @@
             const submitBtn = document.getElementById('submit-btn');
             const lockMsg = document.getElementById('lock-msg');
 
-            // ล็อกแค่ปุ่มสแกนหน้า
             if (hasSig && hasStaffName) {
                 camBtn.classList.remove('disabled-btn');
                 lockMsg.classList.add('hidden');
@@ -122,7 +119,6 @@
                 lockMsg.classList.remove('hidden');
             }
             
-            // ล็อกปุ่มส่ง จนกว่าจะมีรูป
             if (hasSig && hasStaffName && faceBase64) {
                 submitBtn.classList.remove('disabled-btn');
             } else {
@@ -135,8 +131,22 @@
             const container = document.getElementById('caseContainer');
             const div = document.createElement('div');
             div.className = 'case-card';
-            const del = isFirst ? "" : `<div style="position:absolute;top:10px;right:15px;color:#94a3b8;font-size:1.5rem;" onclick="this.parentElement.remove()">×</div>`;
-            div.innerHTML = `${del}<label class="label-text text-teal-600">Case #${caseCount}</label><label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field"><label class="label-text text-sm">Diagnosis</label><textarea rows="2" class="input-field"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
+            const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#cbd5e1;font-size:1.8rem;" onclick="this.parentElement.remove()">×</div>`;
+            div.innerHTML = `
+                ${delBtn}
+                <div class="text-xs font-bold text-[#2dd4bf] mb-4 uppercase">Case #${caseCount}</div>
+                <label class="label-text text-sm">ชื่อผู้ป่วย / HN</label>
+                <input type="text" class="input-field patient-input" placeholder="พิมพ์ชื่อ/HN ที่นี่">
+                <label class="label-text text-sm">Diagnosis</label>
+                <textarea rows="2" class="input-field diag-input" placeholder="พิมพ์การวินิจฉัย"></textarea>
+                <label class="label-text text-sm">กิจกรรม (P/A/O)</label>
+                <select class="input-field note-input font-bold">
+                    <option value="">-- เลือก --</option>
+                    <option value="P">P</option>
+                    <option value="A">A</option>
+                    <option value="O">O</option>
+                </select>
+            `;
             container.appendChild(div);
         }
 
@@ -145,12 +155,7 @@
                 document.getElementById('video-container').style.display = 'flex';
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('video').srcObject = stream;
-            } catch (err) { Swal.fire('Error', 'เข้าถึงกล้องไม่ได้', 'error'); }
-        }
-
-        function closeCamera() {
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
+            } catch (err) { Swal.fire('Error', 'กล้องไม่ทำงาน', 'error'); }
         }
 
         function takePhoto() {
@@ -161,19 +166,25 @@
             faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('face-img').src = faceBase64;
             document.getElementById('preview-photo').classList.remove('hidden');
-            closeCamera();
+            if(stream) stream.getTracks().forEach(t => t.stop());
+            document.getElementById('video-container').style.display = 'none';
             checkCompletion();
+        }
+
+        function closeCamera() {
+            if(stream) stream.getTracks().forEach(t => t.stop());
+            document.getElementById('video-container').style.display = 'none';
         }
 
         async function submitAll() {
             const cards = Array.from(document.querySelectorAll('.case-card'));
             const cases = cards.map(card => ({
-                patient: card.querySelectorAll('input')[0].value,
-                diag: card.querySelector('textarea').value,
-                note: card.querySelector('select').value
+                patient: card.querySelector('.patient-input').value,
+                diag: card.querySelector('.diag-input').value,
+                note: card.querySelector('.note-input').value
             })).filter(c => c.note !== "");
 
-            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'กำลังส่งข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const payload = {
                 action: "submitReport",
