@@ -24,6 +24,10 @@
         #signature-pad { border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; width: 100%; height: 180px; touch-action: none; }
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .disabled-btn { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
+        
+        /* สไตล์ใหม่สำหรับปุ่มล้างลายเซ็นที่ย้ายที่ */
+        .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .clear-btn { color: #f87171; font-size: 0.875rem; font-weight: 600; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
 <body class="pb-20 px-4">
@@ -58,9 +62,13 @@
         <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-5 rounded-3xl mb-10 font-bold bg-white shadow-sm">+ เพิ่มรายการคนไข้</button>
 
         <div class="bg-white rounded-[30px] p-6 shadow-sm mb-10 border-2 border-white">
-            <label class="label-text text-center text-xl mb-4 text-teal-700">อาจารย์ผู้ควบคุมลงนาม</label>
+            <div class="sig-header">
+                <label class="label-text text-teal-700 m-0">อาจารย์ผู้ควบคุมลงนาม</label>
+                <span class="clear-btn" onclick="clearSig()">ล้างลายเซ็น</span>
+            </div>
+            
             <canvas id="signature-pad"></canvas>
-            <button type="button" onclick="clearSig()" class="w-full text-red-400 mt-4 text-sm underline">ล้างลายเซ็น</button>
+            
             <div class="mt-6">
                 <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
                 <input type="text" id="staffName" class="input-field" placeholder="ระบุชื่ออาจารย์" oninput="checkCompletion()">
