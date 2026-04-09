@@ -34,9 +34,9 @@
             </div>
             <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
                 <label class="label-text">ชื่อ นสพ.</label>
-                <input type="text" id="name" class="input-field mb-3">
+                <input type="text" id="name" class="input-field mb-3" placeholder="ตรวจสอบข้อมูลหน้าแรก">
                 <label class="label-text">รหัสประจำตัวนิสิต</label>
-                <input type="text" id="studentId" class="input-field mb-3">
+                <input type="text" id="studentId" class="input-field mb-3" placeholder="ตรวจสอบข้อมูลหน้าแรก">
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
                     <div><label class="label-text">เวลา</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-16:00"></div>
@@ -79,7 +79,72 @@
         let sigPad, stream, faceImg = "", sigImg = "";
 
         window.onload = function() {
-            document.getElementById('name').value = localStorage.getItem('savedName') || "";
-            document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
+            // ระบบ Smart Fetch: ลองกวาดหาชื่อและไอดีในทุกชื่อที่เป็นไปได้
+            const name = localStorage.getItem('savedName') || localStorage.getItem('name') || localStorage.getItem('userName') || "";
+            const id = localStorage.getItem('savedId') || localStorage.getItem('studentId') || localStorage.getItem('id') || "";
+            
+            document.getElementById('name').value = name;
+            document.getElementById('studentId').value = id;
             document.getElementById('workDate').valueAsDate = new Date();
-            const canvas = document.getElementById("
+            
+            initSignature();
+            addCase(true);
+        };
+
+        function addCase(isFirst = false) {
+            const container = document.getElementById('caseContainer');
+            if(!container) return; // ป้องกัน Error
+            const div = document.createElement('div');
+            div.className = 'case-card shadow-sm';
+            const del = isFirst ? "" : `<button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-gray-300 text-2xl">×</button>`;
+            div.innerHTML = `${del}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field p-in mb-2"><label class="label-text text-sm">Diagnosis</label><input type="text" class="input-field d-in mb-2"><label class="label-text text-sm">กิจกรรม</label><select class="input-field n-in font-bold"><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
+            container.appendChild(div);
+        }
+
+        function initSignature() {
+            const canvas = document.getElementById("signature-pad");
+            sigPad = new SignaturePad(canvas, { onEnd: () => {
+                sigImg = sigPad.toDataURL();
+                const view = document.getElementById('signature-frozen-view');
+                view.src = sigImg; view.style.display = 'block';
+                checkNext();
+            }});
+            const resize = () => {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                if(sigImg) sigPad.fromDataURL(sigImg);
+            };
+            window.addEventListener("resize", resize);
+            resize();
+        }
+
+        function clearSig() { sigPad.clear(); sigImg = ""; document.getElementById('signature-frozen-view').style.display = 'none'; checkNext(); }
+        function goToStep2() { document.getElementById('step1').style.display = 'none'; document.getElementById('step2').style.display = 'block'; window.scrollTo(0,0); }
+        function goToStep1() { document.getElementById('step2').style.display = 'none'; document.getElementById('step1').style.display = 'block'; }
+        
+        function checkNext() {
+            const hasName = document.getElementById('staffName').value.trim().length >= 2;
+            document.getElementById('cam-btn').style.opacity = hasName ? "1" : "0.3";
+            document.getElementById('cam-btn').style.pointerEvents = hasName ? "auto" : "none";
+            const canSub = hasName && faceImg && sigImg;
+            document.getElementById('submit-btn').style.opacity = canSub ? "1" : "0.3";
+            document.getElementById('submit-btn').style.pointerEvents = canSub ? "auto" : "none";
+        }
+
+        async function openCamera() {
+            document.getElementById('video-container').style.display = 'flex';
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('video').srcObject = stream;
+        }
+
+        function takePhoto() {
+            const v = document.getElementById('video');
+            const c = document.createElement('canvas');
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            faceImg = c.toDataURL('image/jpeg', 0.6);
+            document.getElementById('face-img').src = faceImg;
+            document.getElementById('preview-photo').classList.remove('hidden');
+            stream.getTracks
