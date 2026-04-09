@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -14,22 +14,16 @@
         .input-field { border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 0.8rem; background: white; font-size: 16px; }
         .case-card { background: white; margin-bottom: 1rem; padding: 1.2rem; border-radius: 25px; border-left: 10px solid #2dd4bf; position: relative; }
         .label-text { font-size: 1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.2rem; display: block; }
-        
-        /* สไตล์ช่องเซ็นชื่อแบบล็อกตายตัว */
         .sig-page { display: none; }
         .sig-container { 
             position: relative; width: 100%; height: 250px; background: #fff; 
             border: 3px solid #99f6e4; border-radius: 25px; overflow: hidden; touch-action: none;
         }
         #signature-pad { width: 100%; height: 100%; }
-        
-        /* เลเยอร์รูปภาพที่จะมาทับ Canvas ทันทีที่เซ็นเสร็จ */
         #signature-frozen-view {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; display: none; z-index: 20; object-fit: contain;
-            pointer-events: none; /* เพื่อให้ยังกดล้างจอได้ */
+            background: white; display: none; z-index: 20; object-fit: contain; pointer-events: none;
         }
-
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .step-indicator { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; }
@@ -53,15 +47,17 @@
         <div id="step1">
             <div class="mint-bg rounded-[30px] p-6 text-white text-center shadow-md mb-6">
                 <h1 class="text-xl font-bold">ส่วนที่ 1: ข้อมูลกิจกรรม</h1>
-                <p class="text-xs opacity-90">กรอกรายการเคสให้ครบถ้วน</p>
+                <p class="text-xs opacity-90">ตรวจสอบชื่อและกรอกรายการเคส</p>
             </div>
 
             <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
                 <label class="label-text">ชื่อ นสพ.</label>
                 <input type="text" id="name" class="input-field bg-gray-50 mb-3" readonly>
+                <label class="label-text">รหัสประจำตัวนิสิต</label>
+                <input type="text" id="studentId" class="input-field bg-gray-50 mb-3" readonly>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
-                    <div><label class="label-text">เวลา</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-16:00"></div>
+                    <div><label class="label-text">เวลา</label><input type="text" id="shiftTime" class="input-field" placeholder="เช่น 08:00-16:00"></div>
                 </div>
             </div>
 
@@ -85,7 +81,6 @@
                     <canvas id="signature-pad"></canvas>
                     <img id="signature-frozen-view">
                 </div>
-
                 <div class="mt-6">
                     <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
                     <input type="text" id="staffName" class="input-field" placeholder="กรุณาพิมพ์ชื่ออาจารย์" oninput="checkStep2()">
@@ -93,7 +88,7 @@
             </div>
 
             <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 opacity-30 pointer-events-none">
-                📸 สแกนหน้าออกให้เห็นชุดที่เปลี่ยนเรียบร้อยแล้ว🥼
+                📸 สแกนหน้าออกให้เห็นชุดที่เปลี่ยนเรียบร้อยแล้ว
             </button>
 
             <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg bg-gray-200">
@@ -112,5 +107,76 @@
         let signaturePad, stream, faceBase64 = "", finalSigData = "";
 
         window.onload = function() {
+            // *** กลับมาดึงข้อมูลให้แล้วค่ะคุณหมอ ***
             document.getElementById('name').value = localStorage.getItem('savedName') || "";
-            document.getElementById('workDate').valueAsDate = new Date
+            document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
+            document.getElementById('workDate').valueAsDate = new Date();
+            
+            const canvas = document.getElementById("signature-pad");
+            signaturePad = new SignaturePad(canvas, {
+                onEnd: function() {
+                    finalSigData = signaturePad.toDataURL();
+                    const frozenView = document.getElementById('signature-frozen-view');
+                    frozenView.src = finalSigData;
+                    frozenView.style.display = 'block';
+                    checkStep2();
+                }
+            });
+            
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                if(finalSigData) signaturePad.fromDataURL(finalSigData);
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+            addCase(true);
+        };
+
+        function clearAllSignature() {
+            signaturePad.clear();
+            finalSigData = "";
+            const frozenView = document.getElementById('signature-frozen-view');
+            frozenView.src = "";
+            frozenView.style.display = 'none';
+            checkStep2();
+        }
+
+        function goToStep2() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('dot1').classList.remove('active');
+            document.getElementById('dot2').classList.add('active');
+            window.scrollTo(0, 0);
+            setTimeout(() => {
+                const canvas = document.getElementById("signature-pad");
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                if(finalSigData) signaturePad.fromDataURL(finalSigData);
+            }, 150);
+        }
+
+        function goToStep1() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('dot2').classList.remove('active');
+            document.getElementById('dot1').classList.add('active');
+        }
+
+        function checkStep2() {
+            const staffName = document.getElementById('staffName').value.trim();
+            const camBtn = document.getElementById('camera-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            if(staffName.length >= 3) {
+                camBtn.style.opacity = "1";
+                camBtn.style.pointerEvents = "auto";
+            } else {
+                camBtn.style.opacity = "0.3";
+                camBtn.style.pointerEvents = "none";
+            }
+            if(staffName.length >= 3 && faceBase64 && finalSigData) {
+                submit
