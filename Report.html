@@ -9,162 +9,167 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ล็อกไม่ให้หน้าเว็บขยับเขยื้อนเวลาพิมพ์ */
-        html, body { 
-            height: 100%; 
-            overflow-x: hidden; 
-            background-color: #f0fdfa;
-            -webkit-text-size-adjust: 100%;
-        }
-        body { font-family: 'Kanit', sans-serif; padding-bottom: 80px; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f0fdfa; }
         .mint-bg { background-color: #2dd4bf; }
-        .btn-teal { background-color: #0d9488; color: white; border-radius: 20px; }
-        
-        /* ปรับขนาดฟอนต์ 16px เพื่อกัน iOS Zoom */
-        .input-field { 
-            border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 0.8rem; 
-            margin-bottom: 0.5rem; background: white; font-size: 16px !important;
-        }
+        .input-field { border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 0.8rem; background: white; font-size: 16px; }
         .case-card { background: white; margin-bottom: 1rem; padding: 1.2rem; border-radius: 25px; border-left: 10px solid #2dd4bf; position: relative; }
         .label-text { font-size: 1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.2rem; display: block; }
         
-        /* ช่องเซ็นชื่อแบบล็อกพิกเซล */
+        /* สไตล์หน้าเซ็นชื่อ (นิ่งและสะอาด) */
+        .sig-page { display: none; } /* ซ่อนไว้ก่อน */
         .sig-container { 
-            position: relative; width: 100%; height: 200px; background: #f8fafc; 
-            border: 2px dashed #99f6e4; border-radius: 20px; overflow: hidden;
-            touch-action: none; /* ล็อกการเลื่อนหน้าจอขณะเซ็น */
+            position: relative; width: 100%; height: 250px; background: #fff; 
+            border: 3px solid #99f6e4; border-radius: 25px; overflow: hidden; touch-action: none;
         }
-        #signature-pad { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
-        #signature-view { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 10; display: none; background: white; }
+        #signature-pad { width: 100%; height: 100%; }
 
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .disabled-btn { background-color: #cbd5e1 !important; color: #94a3b8 !important; pointer-events: none; opacity: 0.6; }
+        .step-indicator { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; }
+        .dot.active { background: #0d9488; width: 30px; border-radius: 10px; }
     </style>
 </head>
-<body class="px-4">
+<body class="p-4 pb-10">
     <div id="video-container">
         <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold">📸 ถ่ายรูป</button>
-            <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold">ปิด</button>
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-lg">📸 ถ่ายรูปยืนยันตัวตน</button>
         </div>
     </div>
 
-    <div class="max-w-md mx-auto pt-6">
-        <div class="mint-bg rounded-[35px] p-6 text-white text-center shadow-md mb-6">
-            <h1 class="text-xl font-bold">แบบฟอร์มรายงานกิจกรรม</h1>
-            <p class="text-sm opacity-90">นสพ. ปี 5 มหาวิทยาลัยนเรศวร</p>
+    <div class="max-w-md mx-auto pt-4">
+        <div class="step-indicator">
+            <div id="dot1" class="dot active"></div>
+            <div id="dot2" class="dot"></div>
         </div>
 
-        <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
-            <div class="grid grid-cols-2 gap-3">
-                <div class="col-span-2">
-                    <label class="label-text">ชื่อ - นามสกุล นสพ.</label>
-                    <input type="text" id="name" class="input-field bg-gray-50" readonly>
+        <div id="step1">
+            <div class="mint-bg rounded-[30px] p-6 text-white text-center shadow-md mb-6">
+                <h1 class="text-xl font-bold">ส่วนที่ 1: ข้อมูลกิจกรรม</h1>
+                <p class="text-xs opacity-90">กรอกรายการเคสให้ครบถ้วน</p>
+            </div>
+
+            <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
+                <label class="label-text">ชื่อ นสพ.</label>
+                <input type="text" id="name" class="input-field bg-gray-50 mb-3" readonly>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
+                    <div><label class="label-text">เวลา</label><input type="text" id="shiftTime" class="input-field" placeholder="เช่น 08:00-16:00"></div>
                 </div>
-                <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
-                <div><label class="label-text">เวลาเวร</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-00:00"></div>
             </div>
+
+            <div id="caseContainer"></div>
+            <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] py-4 rounded-2xl mb-6 font-bold bg-white">+ เพิ่มเคสคนไข้</button>
+
+            <button onclick="goToStep2()" class="w-full bg-[#0d9488] text-white p-6 rounded-[30px] font-bold text-xl shadow-lg">ต่อไป: ให้อาจารย์ลงนาม ➜</button>
         </div>
 
-        <div id="caseContainer"></div>
-        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] py-3 rounded-2xl mb-6 font-bold bg-white">+ เพิ่มเคส</button>
-
-        <div class="bg-white rounded-[25px] p-5 shadow-sm mb-8 border-2 border-white">
-            <div class="flex justify-between items-center mb-3">
-                <label class="label-text m-0 text-teal-700">อาจารย์ผู้ควบคุมลงนาม</label>
-                <button onclick="clearSig()" class="text-red-400 font-bold text-xs underline">ล้างลายเซ็น</button>
-            </div>
-            
-            <div class="sig-container">
-                <canvas id="signature-pad"></canvas>
-                <img id="signature-view">
+        <div id="step2" class="sig-page">
+            <div class="bg-orange-400 rounded-[30px] p-6 text-white text-center shadow-md mb-6">
+                <h1 class="text-xl font-bold">ส่วนที่ 2: อาจารย์ลงนาม</h1>
+                <p class="text-xs opacity-90">ยื่นมือถือให้อาจารย์เซ็นและพิมพ์ชื่อ</p>
             </div>
 
-            <div class="mt-5">
-                <label class="label-text">ชื่ออาจารย์ (ตัวบรรจง)</label>
-                <input type="text" id="staffName" class="input-field" placeholder="พิมพ์ชื่อเพื่อปลดล็อกปุ่มสแกนหน้า" oninput="validateForm()">
-            </div>
-        </div>
+            <div class="bg-white rounded-[25px] p-6 shadow-sm mb-6 border-2 border-orange-100">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="label-text m-0">ลายเซ็นอาจารย์</label>
+                    <button onclick="signaturePad.clear()" class="text-red-500 font-bold text-xs underline">ล้างจอ</button>
+                </div>
+                <div class="sig-container">
+                    <canvas id="signature-pad"></canvas>
+                </div>
 
-        <div class="text-center">
-            <p id="hint-text" class="text-orange-400 text-xs mb-3 font-bold italic">กรุณาพิมพ์ชื่ออาจารย์ให้เรียบร้อยก่อน</p>
-            <div id="preview-photo" class="hidden mb-4 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-md">
-                <img id="face-img" src="" class="w-full h-full object-cover">
+                <div class="mt-6">
+                    <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
+                    <input type="text" id="staffName" class="input-field" placeholder="กรุณาพิมพ์ชื่ออาจารย์" oninput="checkStep2()">
+                </div>
             </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-[#0d9488] text-white p-5 rounded-3xl font-bold text-lg mb-4 disabled-btn">
+
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 opacity-30 pointer-events-none">
                 📸 สแกนหน้ายืนยันตัวตน
             </button>
-            <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-6 rounded-[30px] font-bold text-xl shadow-lg disabled-btn">บันทึกข้อมูล</button>
+
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg bg-gray-200">
+                <img id="face-img" src="" class="w-full h-full object-cover">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="goToStep1()" class="w-1/3 bg-gray-200 text-gray-600 p-5 rounded-[25px] font-bold">ย้อนกลับ</button>
+                <button id="submit-btn" onclick="submitAll()" class="w-2/3 bg-[#0d9488] text-white p-5 rounded-[25px] font-bold text-lg opacity-30 pointer-events-none">ส่งรายงาน</button>
+            </div>
         </div>
     </div>
 
     <script src="Config.js"></script>
     <script>
-        let signaturePad, stream, faceBase64 = "", finalSigData = "";
+        let signaturePad, stream, faceBase64 = "";
 
         window.onload = function() {
             document.getElementById('name').value = localStorage.getItem('savedName') || "";
             document.getElementById('workDate').valueAsDate = new Date();
-
-            const canvas = document.getElementById('signature-pad');
-            signaturePad = new SignaturePad(canvas, {
-                onEnd: function() {
-                    finalSigData = signaturePad.toDataURL();
-                    const view = document.getElementById('signature-view');
-                    view.src = finalSigData;
-                    view.style.display = 'block';
-                    validateForm();
-                }
-            });
-
+            
+            const canvas = document.querySelector("canvas");
+            signaturePad = new SignaturePad(canvas);
+            
             function resizeCanvas() {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
                 canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear();
             }
-            window.onresize = resizeCanvas;
+            window.addEventListener("resize", resizeCanvas);
             resizeCanvas();
             addCase(true);
         };
 
-        function validateForm() {
-            const staffName = document.getElementById('staffName').value.trim();
-            const camBtn = document.getElementById('camera-btn');
-            const submitBtn = document.getElementById('submit-btn');
-            const hint = document.getElementById('hint-text');
-
-            // ปลดล็อกปุ่มกล้องเมื่อพิมพ์ชื่อยาวกว่า 2 ตัว
-            if (staffName.length >= 2) {
-                camBtn.classList.remove('disabled-btn');
-                hint.classList.add('hidden');
-            } else {
-                camBtn.classList.add('disabled-btn');
-                hint.classList.remove('hidden');
-            }
-
-            // ปลดล็อกปุ่มส่งเมื่อมีข้อมูลครบ
-            if (staffName.length >= 2 && finalSigData && faceBase64) {
-                submitBtn.classList.remove('disabled-btn');
-            } else {
-                submitBtn.classList.add('disabled-btn');
-            }
+        function goToStep2() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('dot1').classList.remove('active');
+            document.getElementById('dot2').classList.add('active');
+            window.scrollTo(0, 0);
+            setTimeout(() => { // รีไซส์ Canvas อีกรอบเพื่อความแม่นยำ
+                const canvas = document.querySelector("canvas");
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }, 100);
         }
 
-        function clearSig() {
-            signaturePad.clear();
-            finalSigData = "";
-            document.getElementById('signature-view').style.display = 'none';
-            validateForm();
+        function goToStep1() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('dot2').classList.remove('active');
+            document.getElementById('dot1').classList.add('active');
+        }
+
+        function checkStep2() {
+            const name = document.getElementById('staffName').value.trim();
+            const camBtn = document.getElementById('camera-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if(name.length >= 3) {
+                camBtn.style.opacity = "1";
+                camBtn.style.pointerEvents = "auto";
+            } else {
+                camBtn.style.opacity = "0.3";
+                camBtn.style.pointerEvents = "none";
+            }
+
+            if(name.length >= 3 && faceBase64 && !signaturePad.isEmpty()) {
+                submitBtn.style.opacity = "1";
+                submitBtn.style.pointerEvents = "auto";
+            }
         }
 
         function addCase(isFirst = false) {
             const container = document.getElementById('caseContainer');
             const div = document.createElement('div');
-            div.className = 'case-card';
-            const delBtn = isFirst ? "" : `<div style="position:absolute;top:10px;right:10px;color:#ccc;" onclick="this.parentElement.remove()">×</div>`;
-            div.innerHTML = `${delBtn}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input"><label class="label-text text-sm">Diagnosis</label><textarea rows="1" class="input-field diag-input"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
+            div.className = 'case-card shadow-sm';
+            const delBtn = isFirst ? "" : `<button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-gray-300 text-2xl">×</button>`;
+            div.innerHTML = `${delBtn}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input mb-2"><label class="label-text text-sm">Diagnosis</label><input type="text" class="input-field diag-input mb-2"><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input font-bold"><option value="">- เลือก -</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
             container.appendChild(div);
         }
 
@@ -184,24 +189,21 @@
             faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('face-img').src = faceBase64;
             document.getElementById('preview-photo').classList.remove('hidden');
-            closeCamera();
-            validateForm();
-        }
-
-        function closeCamera() {
             if(stream) stream.getTracks().forEach(t => t.stop());
             document.getElementById('video-container').style.display = 'none';
+            checkStep2();
         }
 
         async function submitAll() {
-            const cards = Array.from(document.querySelectorAll('.case-card'));
-            const cases = cards.map(card => ({
+            if(signaturePad.isEmpty()) return Swal.fire('ลืมเซ็นชื่อ', 'กรุณาให้อาจารย์เซ็นชื่อก่อนส่งครับ', 'warning');
+            
+            const cases = Array.from(document.querySelectorAll('.case-card')).map(card => ({
                 patient: card.querySelector('.patient-input').value,
                 diag: card.querySelector('.diag-input').value,
                 note: card.querySelector('.note-input').value
             })).filter(c => c.note !== "");
 
-            Swal.fire({ title: 'กำลังส่ง...', didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             fetch(WEB_APP_URL, {
                 method: "POST",
@@ -210,14 +212,14 @@
                     name: document.getElementById('name').value,
                     date: document.getElementById('workDate').value,
                     shift: document.getElementById('shiftTime').value,
-                    signature: finalSigData,
+                    signature: signaturePad.toDataURL(),
                     staffName: document.getElementById('staffName').value,
                     faceImage: faceBase64,
                     cases: cases
                 })
             })
-            .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!' }).then(() => location.reload()))
-            .catch(() => Swal.fire('Error', 'ลองใหม่อีกครั้ง', 'error'));
+            .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลเรียบร้อยแล้ว' }).then(() => location.reload()))
+            .catch(() => Swal.fire('Error', 'ส่งไม่สำเร็จ กรุณาลองอีกครั้ง', 'error'));
         }
     </script>
 </body>
