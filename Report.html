@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 🛡️ ส่วนล็อกหน้าจอไม่ให้ขยับ */
+        /* ล็อกหน้าจอไม่ให้เด้ง */
         html, body { 
             overscroll-behavior-y: none !important; 
             touch-action: manipulation;
@@ -17,7 +17,6 @@
             color: #1e293b;
             font-family: 'Kanit', sans-serif;
         }
-
         .mint-bg { background-color: #2dd4bf; }
         .btn-teal { background-color: #0d9488; color: white; border-radius: 20px; }
         .input-field { 
@@ -29,17 +28,10 @@
             border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative;
         }
         .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
-        
-        /* 🛡️ ช่องเซ็นชื่อแบบ Fixed Touch */
         #signature-pad { 
-            border: 2px dashed #99f6e4; 
-            border-radius: 20px; 
-            background-color: #f8fafc; 
-            width: 100%; 
-            height: 180px; 
-            touch-action: none !important; 
+            border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; 
+            width: 100%; height: 180px; touch-action: none !important; 
         }
-
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .disabled-btn { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
         .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -47,8 +39,74 @@
     </style>
 </head>
 <body class="pb-20 px-4">
-
     <div id="video-container">
         <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl">📸 ถ่ายรูป</button>
+            <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold">ปิด</button>
+        </div>
+        <canvas id="photo-canvas" style="display:none;"></canvas>
+    </div>
+
+    <div class="max-w-md mx-auto pt-6">
+        <div class="mint-bg rounded-[40px] p-8 text-white text-center shadow-lg mb-8">
+            <h1 class="text-2xl font-bold">แบบฟอร์มรายงานกิจกรรม</h1>
+            <p class="text-lg opacity-90">นสพ. ปี 5 มหาวิทยาลัยนเรศวร</p>
+        </div>
+
+        <div class="bg-white rounded-[30px] p-6 shadow-sm mb-6 border-2 border-white">
+            <label class="label-text">ชื่อ - นามสกุล นสพ.</label>
+            <input type="text" id="name" class="input-field bg-gray-50" readonly>
+            <label class="label-text">รหัสประจำตัวนิสิต</label>
+            <input type="text" id="studentId" class="input-field bg-gray-50" readonly>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
+                <div><label class="label-text">เวลาเวร</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-00:00"></div>
+            </div>
+        </div>
+
+        <div id="caseContainer"></div>
+        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-5 rounded-3xl mb-10 font-bold bg-white shadow-sm">+ เพิ่มรายการคนไข้</button>
+
+        <div class="bg-white rounded-[30px] p-6 shadow-sm mb-10 border-2 border-white">
+            <div class="sig-header">
+                <label class="label-text text-teal-700 m-0">อาจารย์ผู้ควบคุมลงนาม</label>
+                <span class="clear-btn" onclick="clearSig()">ล้างลายเซ็น</span>
+            </div>
+            <canvas id="signature-pad"></canvas>
+            <div class="mt-6">
+                <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
+                <input type="text" id="staffName" class="input-field" placeholder="ระบุชื่ออาจารย์" oninput="checkCompletion()">
+            </div>
+        </div>
+
+        <div class="mb-12 text-center">
+            <p id="lock-msg" class="text-red-500 text-sm mb-4 font-bold bg-red-50 p-2 rounded-xl">⚠️ ต้องให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-gray-100">
+                <img id="face-img" src="" class="w-full h-full object-cover">
+            </div>
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">
+                📸 สแกนหน้ายืนยันตัวตน
+            </button>
+        </div>
+
+        <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl disabled-btn">บันทึกและส่งรายงาน</button>
+    </div>
+
+    <script src="Config.js"></script>
+    <script>
+        let signaturePad, stream, faceBase64 = "";
+        let caseCount = 0;
+
+        window.onload = () => {
+            document.getElementById('name').value = localStorage.getItem('savedName') || "";
+            document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
+            document.getElementById('workDate').valueAsDate = new Date();
+            const canvas = document.getElementById('signature-pad');
+            
+            canvas.addEventListener('touchstart', (e) => { if(e.target === canvas) e.preventDefault(); }, { passive: false });
+            canvas.addEventListener('touchmove', (e) => { if(e.target === canvas) e.preventDefault(); }, { passive: false });
+
+            const resizeCanvas = () => {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
