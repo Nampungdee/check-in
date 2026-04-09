@@ -9,46 +9,29 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f0fdfa; color: #1e293b; padding-bottom: 50px; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f0fdfa; padding-bottom: 50px; }
         .mint-bg { background-color: #2dd4bf; }
         .btn-teal { background-color: #0d9488; color: white; border-radius: 20px; }
-        .input-field { 
-            border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 1rem; 
-            margin-bottom: 0.8rem; font-size: 1.1rem; outline: none; background-color: #ffffff;
-        }
-        .case-card { 
-            background: white; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 25px; 
-            border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative;
-        }
+        .input-field { border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 1rem; margin-bottom: 0.8rem; background: white; }
+        .case-card { background: white; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 25px; border-left: 10px solid #2dd4bf; position: relative; }
         .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
         
-        /* ช่องเซ็นชื่อ */
-        .sig-wrapper { position: relative; width: 100%; height: 200px; }
-        #signature-pad { 
-            border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; 
-            width: 100%; height: 100%; touch-action: none; 
-        }
-        /* รูปภาพที่จะมาทับเพื่อล็อกลายเซ็น */
-        #signature-image {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 20px; object-fit: contain; background: white;
-            display: none; border: 2px solid #2dd4bf; z-index: 10;
-        }
+        /* ล็อกช่องเซ็นชื่อให้มั่นคงที่สุด */
+        .sig-container { position: relative; width: 100%; height: 220px; background: #f8fafc; border: 2px dashed #99f6e4; border-radius: 20px; overflow: hidden; }
+        #signature-pad { width: 100%; height: 100%; touch-action: none; position: absolute; top: 0; left: 0; z-index: 5; }
+        #signature-view { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 10; display: none; background: white; }
 
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .disabled-btn { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
-        .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .clear-btn { color: #f87171; font-size: 0.875rem; font-weight: 600; text-decoration: underline; cursor: pointer; }
+        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        .disabled-btn { opacity: 0.3; pointer-events: none; }
     </style>
 </head>
 <body class="px-4">
     <div id="video-container">
         <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl">📸 ถ่ายรูป</button>
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold">📸 ถ่ายรูป</button>
             <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold">ปิด</button>
         </div>
-        <canvas id="photo-canvas" style="display:none;"></canvas>
     </div>
 
     <div class="max-w-md mx-auto pt-6">
@@ -69,16 +52,16 @@
         </div>
 
         <div id="caseContainer"></div>
-        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-5 rounded-3xl mb-10 font-bold bg-white shadow-sm">+ เพิ่มรายการคนไข้</button>
+        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-5 rounded-3xl mb-10 font-bold bg-white">+ เพิ่มรายการคนไข้</button>
 
         <div class="bg-white rounded-[30px] p-6 shadow-sm mb-10 border-2 border-white">
-            <div class="sig-header">
-                <label class="label-text text-teal-700 m-0">อาจารย์ผู้ควบคุมลงนาม</label>
-                <span id="sig-action-btn" class="clear-btn" onclick="clearSig()">ล้างลายเซ็น</span>
+            <div class="flex justify-between items-center mb-4">
+                <label class="label-text m-0">อาจารย์ผู้ควบคุมลงนาม</label>
+                <button onclick="clearSig()" class="text-red-500 font-bold underline">ล้าง/เซ็นใหม่</button>
             </div>
-            <div class="sig-wrapper">
+            <div class="sig-container">
                 <canvas id="signature-pad"></canvas>
-                <img id="signature-image" alt="Locked Signature">
+                <img id="signature-view">
             </div>
             <div class="mt-6">
                 <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
@@ -88,12 +71,10 @@
 
         <div class="mb-12 text-center">
             <p id="lock-msg" class="text-red-500 text-sm mb-4 font-bold bg-red-50 p-2 rounded-xl">⚠️ ต้องให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-gray-100">
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white overflow-hidden shadow-xl">
                 <img id="face-img" src="" class="w-full h-full object-cover">
             </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">
-                📸 สแกนหน้ายืนยันตัวตน
-            </button>
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">📸 สแกนหน้ายืนยันตัวตน</button>
         </div>
 
         <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl disabled-btn">บันทึกและส่งรายงาน</button>
@@ -101,56 +82,48 @@
 
     <script src="Config.js"></script>
     <script>
-        let signaturePad, stream, faceBase64 = "";
-        let caseCount = 0;
-        let finalSignature = ""; // เก็บค่าลายเซ็นไว้ส่ง Database
+        let signaturePad, stream, faceBase64 = "", finalSigData = "";
 
         window.onload = function() {
+            // ดึงข้อมูลพื้นฐาน
             document.getElementById('name').value = localStorage.getItem('savedName') || "ไม่พบชื่อ";
             document.getElementById('studentId').value = localStorage.getItem('savedId') || "ไม่พบรหัส";
             document.getElementById('workDate').valueAsDate = new Date();
 
+            // ตั้งค่า Signature
             const canvas = document.getElementById('signature-pad');
-            
+            signaturePad = new SignaturePad(canvas, {
+                onEnd: function() {
+                    // ทันทีที่เซ็นเสร็จ ให้ Snapshot ไว้ในความจำเครื่อง
+                    finalSigData = signaturePad.toDataURL();
+                    const view = document.getElementById('signature-view');
+                    view.src = finalSigData;
+                    view.style.display = 'block'; // แปะรูปทับเพื่อกันเด้งหาย
+                    checkCompletion();
+                }
+            });
+
             function resizeCanvas() {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
                 canvas.getContext("2d").scale(ratio, ratio);
+                if (finalSigData) signaturePad.fromDataURL(finalSigData);
             }
-
-            signaturePad = new SignaturePad(canvas, { 
-                onEnd: lockSignature // เมื่อยกนิ้วออก ให้ทำการล็อกทันที
-            });
-            
             window.onresize = resizeCanvas;
             resizeCanvas();
             addCase(true);
         };
 
-        // 🛡️ ฟังก์ชันล็อกลายเซ็นแปลงเป็นรูปภาพ
-        function lockSignature() {
-            if (signaturePad.isEmpty()) return;
-            
-            finalSignature = signaturePad.toDataURL(); // แปลงเป็น Base64
-            const sigImg = document.getElementById('signature-image');
-            sigImg.src = finalSignature;
-            sigImg.style.display = 'block'; // แสดงรูปทับ Canvas
-            
-            document.getElementById('sig-action-btn').innerText = "แก้ไขลายเซ็น";
-            checkCompletion();
-        }
-
         function clearSig() {
             signaturePad.clear();
-            finalSignature = "";
-            document.getElementById('signature-image').style.display = 'none';
-            document.getElementById('sig-action-btn').innerText = "ล้างลายเซ็น";
+            finalSigData = "";
+            document.getElementById('signature-view').style.display = 'none';
             checkCompletion();
         }
 
         function checkCompletion() {
-            const hasSig = finalSignature !== "";
+            const hasSig = finalSigData !== "";
             const hasStaffName = document.getElementById('staffName').value.trim().length > 2;
             const camBtn = document.getElementById('camera-btn');
             const submitBtn = document.getElementById('submit-btn');
@@ -171,13 +144,13 @@
             }
         }
 
+        // --- ส่วนเสริมฟังก์ชันอื่นๆ (Case, Camera, Submit) ---
         function addCase(isFirst = false) {
-            caseCount++;
             const container = document.getElementById('caseContainer');
             const div = document.createElement('div');
             div.className = 'case-card';
-            const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#cbd5e1;font-size:1.8rem;" onclick="this.parentElement.remove()">×</div>`;
-            div.innerHTML = `${delBtn}<div class="text-xs font-bold text-[#2dd4bf] mb-4 uppercase">Case #${caseCount}</div><label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input" placeholder="พิมพ์ชื่อ/HN"><label class="label-text text-sm">Diagnosis</label><textarea rows="2" class="input-field diag-input" placeholder="พิมพ์การวินิจฉัย"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
+            const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#ccc;" onclick="this.parentElement.remove()">×</div>`;
+            div.innerHTML = `${delBtn}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input" placeholder="พิมพ์ชื่อ/HN"><label class="label-text text-sm">Diagnosis</label><textarea rows="2" class="input-field diag-input"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
             container.appendChild(div);
         }
 
@@ -186,12 +159,12 @@
                 document.getElementById('video-container').style.display = 'flex';
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('video').srcObject = stream;
-            } catch (err) { Swal.fire('Error', 'กล้องไม่ทำงาน', 'error'); }
+            } catch (err) { alert('กล้องไม่ทำงาน'); }
         }
 
         function takePhoto() {
             const video = document.getElementById('video');
-            const canvas = document.getElementById('photo-canvas');
+            const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
@@ -215,7 +188,7 @@
                 note: card.querySelector('.note-input').value
             })).filter(c => c.note !== "");
 
-            Swal.fire({ title: 'กำลังส่งข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const payload = {
                 action: "submitReport",
@@ -223,7 +196,7 @@
                 id: document.getElementById('studentId').value,
                 date: document.getElementById('workDate').value,
                 shift: document.getElementById('shiftTime').value,
-                signature: finalSignature, // ส่งภาพที่ล็อกไว้
+                signature: finalSigData,
                 staffName: document.getElementById('staffName').value,
                 faceImage: faceBase64,
                 cases: cases
