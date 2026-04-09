@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -10,11 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         html, body { 
-            overscroll-behavior-y: none !important; 
-            touch-action: manipulation;
             background-color: #f0fdfa;
             color: #1e293b;
             font-family: 'Kanit', sans-serif;
+            margin: 0; padding: 0;
+            overscroll-behavior-y: contain; /* ป้องกันการ Refresh แต่ยังเลื่อนได้ */
         }
         .mint-bg { background-color: #2dd4bf; }
         .btn-teal { background-color: #0d9488; color: white; border-radius: 20px; }
@@ -27,9 +27,15 @@
             border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative;
         }
         .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
+        
+        /* ช่องเซ็นชื่อที่ปรับให้นิ่ง */
         #signature-pad { 
-            border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; 
-            width: 100%; height: 180px; touch-action: none !important; 
+            border: 2px dashed #99f6e4; 
+            border-radius: 20px; 
+            background-color: #f8fafc; 
+            width: 100%; 
+            height: 200px; 
+            touch-action: none; /* ล็อกหน้าจอเฉพาะตอนเซ็น */
         }
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .disabled-btn { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
@@ -97,31 +103,26 @@
         let signaturePad, stream, faceBase64 = "";
         let caseCount = 0;
 
-        // ฟังก์ชันดึงค่าจาก LocalStorage มาแสดง
-        function loadUserData() {
-            const savedName = localStorage.getItem('savedName');
-            const savedId = localStorage.getItem('savedId');
-            if (savedName) document.getElementById('name').value = savedName;
-            if (savedId) document.getElementById('studentId').value = savedId;
+        // 1. ฟังก์ชันดึงชื่อและรหัส (แยกออกมาให้ทำงานชัดเจน)
+        function setupUserData() {
+            document.getElementById('name').value = localStorage.getItem('savedName') || "ไม่พบชื่อ";
+            document.getElementById('studentId').value = localStorage.getItem('savedId') || "ไม่พบรหัส";
             document.getElementById('workDate').valueAsDate = new Date();
         }
 
-        window.onload = () => {
-            loadUserData(); // เรียกใช้งานทันที
-            
+        // 2. ฟังก์ชันเริ่มระบบเซ็นชื่อ
+        function setupSignature() {
             const canvas = document.getElementById('signature-pad');
-            canvas.addEventListener('touchstart', (e) => { if(e.target === canvas) e.preventDefault(); }, { passive: false });
-            canvas.addEventListener('touchmove', (e) => { if(e.target === canvas) e.preventDefault(); }, { passive: false });
-
-            const resizeCanvas = () => {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-            };
-            window.addEventListener("resize", resizeCanvas);
-            resizeCanvas();
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
             signaturePad = new SignaturePad(canvas, { onEnd: checkCompletion });
+        }
+
+        window.onload = () => {
+            setupUserData();
+            setupSignature();
             addCase(true); 
         };
 
@@ -167,13 +168,4 @@
             } catch (err) { Swal.fire('Error', 'กล้องไม่ทำงาน', 'error'); }
         }
 
-        function takePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('photo-canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
-            document.getElementById('face-img').src = faceBase64;
-            document.getElementById('preview-photo').classList.remove('hidden');
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.
+        function takePhoto()
