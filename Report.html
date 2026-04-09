@@ -19,7 +19,6 @@
         #signature-pad { width: 100%; height: 100%; touch-action: none; position: absolute; top: 0; left: 0; z-index: 5; }
         #signature-view { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 10; display: none; background: white; }
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .disabled-btn { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
     </style>
 </head>
 <body class="px-4">
@@ -53,8 +52,8 @@
 
         <div class="bg-white rounded-[30px] p-6 shadow-sm mb-10 border-2 border-white">
             <div class="flex justify-between items-center mb-4">
-                <label class="label-text m-0">อาจารย์ผู้ควบคุมลงนาม</label>
-                <button onclick="clearSig()" class="text-red-500 font-bold underline">ล้าง/เซ็นใหม่</button>
+                <label class="label-text m-0 text-teal-700">อาจารย์ผู้ควบคุมลงนาม</label>
+                <button onclick="clearSig()" class="text-red-500 font-bold text-sm underline">ล้าง/เซ็นใหม่</button>
             </div>
             <div class="sig-container">
                 <canvas id="signature-pad"></canvas>
@@ -62,21 +61,20 @@
             </div>
             <div class="mt-6">
                 <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
-                <input type="text" id="staffName" class="input-field" placeholder="ระบุชื่ออาจารย์" oninput="checkCompletion()">
+                <input type="text" id="staffName" class="input-field" placeholder="พิมพ์ชื่ออาจารย์ตรงนี้">
             </div>
         </div>
 
         <div class="mb-12 text-center">
-            <p id="lock-msg" class="text-red-500 text-sm mb-4 font-bold bg-red-50 p-2 rounded-xl">⚠️ ต้องให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
             <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white overflow-hidden shadow-xl bg-gray-200">
                 <img id="face-img" src="" class="w-full h-full object-cover">
             </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-[#0d9488] text-white p-6 rounded-[30px] font-bold text-xl shadow-lg">
                 📸 สแกนหน้ายืนยันตัวตน
             </button>
         </div>
 
-        <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl disabled-btn">บันทึกและส่งรายงาน</button>
+        <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl">บันทึกและส่งรายงาน</button>
     </div>
 
     <script src="Config.js"></script>
@@ -94,8 +92,7 @@
                     finalSigData = signaturePad.toDataURL();
                     const view = document.getElementById('signature-view');
                     view.src = finalSigData;
-                    view.style.display = 'block'; // ล็อกภาพทันทีที่เซ็นเสร็จ
-                    checkCompletion();
+                    view.style.display = 'block'; // ล็อกภาพกันหาย
                 }
             });
 
@@ -115,38 +112,13 @@
             signaturePad.clear();
             finalSigData = "";
             document.getElementById('signature-view').style.display = 'none';
-            checkCompletion();
-        }
-
-        function checkCompletion() {
-            const hasSig = finalSigData.length > 500; // เช็คว่ามีการเซ็นจริง
-            const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
-            const camBtn = document.getElementById('camera-btn');
-            const submitBtn = document.getElementById('submit-btn');
-            const lockMsg = document.getElementById('lock-msg');
-
-            // ถ้ามีลายเซ็น และ มีชื่ออาจารย์ ให้เปิดปุ่มสแกนหน้า
-            if (hasSig && hasStaffName) {
-                camBtn.classList.remove('disabled-btn');
-                lockMsg.classList.add('hidden');
-            } else {
-                camBtn.classList.add('disabled-btn');
-                lockMsg.classList.remove('hidden');
-            }
-
-            // ถ้ามีครบทุกอย่างรวมรูปหน้า ให้เปิดปุ่มส่ง
-            if (hasSig && hasStaffName && faceBase64) {
-                submitBtn.classList.remove('disabled-btn');
-            } else {
-                submitBtn.classList.add('disabled-btn');
-            }
         }
 
         function addCase(isFirst = false) {
             const container = document.getElementById('caseContainer');
             const div = document.createElement('div');
             div.className = 'case-card';
-            const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#ccc;" onclick="this.parentElement.remove()">×</div>`;
+            const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#ccc;font-size:1.5rem" onclick="this.parentElement.remove()">×</div>`;
             div.innerHTML = `${delBtn}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input"><label class="label-text text-sm">Diagnosis</label><textarea rows="1" class="input-field diag-input"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
             container.appendChild(div);
         }
@@ -156,7 +128,7 @@
                 document.getElementById('video-container').style.display = 'flex';
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('video').srcObject = stream;
-            } catch (err) { alert('เข้าถึงกล้องไม่ได้'); }
+            } catch (err) { alert('เข้าถึงกล้องไม่ได้ กรุณาอนุญาตให้เข้าถึงกล้องใน Browser'); }
         }
 
         function takePhoto() {
@@ -168,7 +140,6 @@
             document.getElementById('face-img').src = faceBase64;
             document.getElementById('preview-photo').classList.remove('hidden');
             closeCamera();
-            checkCompletion();
         }
 
         function closeCamera() {
@@ -177,6 +148,11 @@
         }
 
         async function submitAll() {
+            // เช็คข้อมูลก่อนส่ง
+            if (!finalSigData) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาให้อาจารย์เซ็นชื่อก่อนค่ะ', 'warning');
+            if (!document.getElementById('staffName').value.trim()) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาพิมพ์ชื่ออาจารย์ด้วยค่ะ', 'warning');
+            if (!faceBase64) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาสแกนหน้ายืนยันตัวตนก่อนค่ะ', 'warning');
+
             const cards = Array.from(document.querySelectorAll('.case-card'));
             const cases = cards.map(card => ({
                 patient: card.querySelector('.patient-input').value,
@@ -201,7 +177,7 @@
                 })
             })
             .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!', timer: 2000 }).then(() => location.reload()))
-            .catch(() => Swal.fire('Error', 'ส่งไม่สำเร็จ', 'error'));
+            .catch(() => Swal.fire('Error', 'ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', 'error'));
         }
     </script>
 </body>
