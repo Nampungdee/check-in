@@ -9,7 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f0fdfa; color: #1e293b; }
+        /* 🛡️ ส่วนล็อกหน้าจอไม่ให้ขยับ */
+        html, body { 
+            overscroll-behavior-y: none !important; 
+            touch-action: manipulation;
+            background-color: #f0fdfa;
+            color: #1e293b;
+            font-family: 'Kanit', sans-serif;
+        }
+
         .mint-bg { background-color: #2dd4bf; }
         .btn-teal { background-color: #0d9488; color: white; border-radius: 20px; }
         .input-field { 
@@ -21,11 +29,19 @@
             border-left: 10px solid #2dd4bf; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative;
         }
         .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
-        #signature-pad { border: 2px dashed #99f6e4; border-radius: 20px; background-color: #f8fafc; width: 100%; height: 180px; touch-action: none; }
+        
+        /* 🛡️ ช่องเซ็นชื่อแบบ Fixed Touch */
+        #signature-pad { 
+            border: 2px dashed #99f6e4; 
+            border-radius: 20px; 
+            background-color: #f8fafc; 
+            width: 100%; 
+            height: 180px; 
+            touch-action: none !important; 
+        }
+
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .disabled-btn { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
-        
-        /* สไตล์ใหม่สำหรับปุ่มล้างลายเซ็นที่ย้ายที่ */
         .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .clear-btn { color: #f87171; font-size: 0.875rem; font-weight: 600; text-decoration: underline; cursor: pointer; }
     </style>
@@ -35,181 +51,4 @@
     <div id="video-container">
         <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl">📸 ถ่ายรูป</button>
-            <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold">ปิด</button>
-        </div>
-        <canvas id="photo-canvas" style="display:none;"></canvas>
-    </div>
-
-    <div class="max-w-md mx-auto pt-6">
-        <div class="mint-bg rounded-[40px] p-8 text-white text-center shadow-lg mb-8">
-            <h1 class="text-2xl font-bold">แบบฟอร์มรายงานกิจกรรม</h1>
-            <p class="text-lg opacity-90">นสพ. ปี 5 มหาวิทยาลัยนเรศวร</p>
-        </div>
-
-        <div class="bg-white rounded-[30px] p-6 shadow-sm mb-6 border-2 border-white">
-            <label class="label-text">ชื่อ - นามสกุล นสพ.</label>
-            <input type="text" id="name" class="input-field bg-gray-50" readonly>
-            <label class="label-text">รหัสประจำตัวนิสิต</label>
-            <input type="text" id="studentId" class="input-field bg-gray-50" readonly>
-            <div class="grid grid-cols-2 gap-4">
-                <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
-                <div><label class="label-text">เวลาเวร</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-00:00"></div>
-            </div>
-        </div>
-
-        <div id="caseContainer"></div>
-        <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] p-5 rounded-3xl mb-10 font-bold bg-white shadow-sm">+ เพิ่มรายการคนไข้</button>
-
-        <div class="bg-white rounded-[30px] p-6 shadow-sm mb-10 border-2 border-white">
-            <div class="sig-header">
-                <label class="label-text text-teal-700 m-0">อาจารย์ผู้ควบคุมลงนาม</label>
-                <span class="clear-btn" onclick="clearSig()">ล้างลายเซ็น</span>
-            </div>
-            
-            <canvas id="signature-pad"></canvas>
-            
-            <div class="mt-6">
-                <label class="label-text">ชื่อ-นามสกุล อาจารย์ (ตัวบรรจง)</label>
-                <input type="text" id="staffName" class="input-field" placeholder="ระบุชื่ออาจารย์" oninput="checkCompletion()">
-            </div>
-        </div>
-
-        <div class="mb-12 text-center">
-            <p id="lock-msg" class="text-red-500 text-sm mb-4 font-bold bg-red-50 p-2 rounded-xl">⚠️ ต้องให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-gray-100">
-                <img id="face-img" src="" class="w-full h-full object-cover">
-            </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">
-                📸 สแกนหน้ายืนยันตัวตน
-            </button>
-        </div>
-
-        <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl disabled-btn">บันทึกและส่งรายงาน</button>
-    </div>
-
-    <script src="Config.js"></script>
-    <script>
-        let signaturePad, stream, faceBase64 = "";
-        let caseCount = 0;
-
-        window.onload = () => {
-            document.getElementById('name').value = localStorage.getItem('savedName') || "";
-            document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
-            document.getElementById('workDate').valueAsDate = new Date();
-            const canvas = document.getElementById('signature-pad');
-            const resizeCanvas = () => {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-            };
-            window.addEventListener("resize", resizeCanvas);
-            resizeCanvas();
-            signaturePad = new SignaturePad(canvas, { onEnd: checkCompletion });
-            addCase(true); 
-        };
-
-        function clearSig() { signaturePad.clear(); checkCompletion(); }
-
-        function checkCompletion() {
-            const hasSig = !signaturePad.isEmpty();
-            const hasStaffName = document.getElementById('staffName').value.trim().length > 2;
-            const camBtn = document.getElementById('camera-btn');
-            const submitBtn = document.getElementById('submit-btn');
-            const lockMsg = document.getElementById('lock-msg');
-
-            if (hasSig && hasStaffName) {
-                camBtn.classList.remove('disabled-btn');
-                lockMsg.classList.add('hidden');
-            } else {
-                camBtn.classList.add('disabled-btn');
-                lockMsg.classList.remove('hidden');
-            }
-            
-            if (hasSig && hasStaffName && faceBase64) {
-                submitBtn.classList.remove('disabled-btn');
-            } else {
-                submitBtn.classList.add('disabled-btn');
-            }
-        }
-
-        function addCase(isFirst = false) {
-            caseCount++;
-            const container = document.getElementById('caseContainer');
-            const div = document.createElement('div');
-            div.className = 'case-card';
-            const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#cbd5e1;font-size:1.8rem;" onclick="this.parentElement.remove()">×</div>`;
-            div.innerHTML = `
-                ${delBtn}
-                <div class="text-xs font-bold text-[#2dd4bf] mb-4 uppercase">Case #${caseCount}</div>
-                <label class="label-text text-sm">ชื่อผู้ป่วย / HN</label>
-                <input type="text" class="input-field patient-input" placeholder="พิมพ์ชื่อ/HN ที่นี่">
-                <label class="label-text text-sm">Diagnosis</label>
-                <textarea rows="2" class="input-field diag-input" placeholder="พิมพ์การวินิจฉัย"></textarea>
-                <label class="label-text text-sm">กิจกรรม (P/A/O)</label>
-                <select class="input-field note-input font-bold">
-                    <option value="">-- เลือก --</option>
-                    <option value="P">P</option>
-                    <option value="A">A</option>
-                    <option value="O">O</option>
-                </select>
-            `;
-            container.appendChild(div);
-        }
-
-        async function openCamera() {
-            try {
-                document.getElementById('video-container').style.display = 'flex';
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                document.getElementById('video').srcObject = stream;
-            } catch (err) { Swal.fire('Error', 'กล้องไม่ทำงาน', 'error'); }
-        }
-
-        function takePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('photo-canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
-            document.getElementById('face-img').src = faceBase64;
-            document.getElementById('preview-photo').classList.remove('hidden');
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
-            checkCompletion();
-        }
-
-        function closeCamera() {
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
-        }
-
-        async function submitAll() {
-            const cards = Array.from(document.querySelectorAll('.case-card'));
-            const cases = cards.map(card => ({
-                patient: card.querySelector('.patient-input').value,
-                diag: card.querySelector('.diag-input').value,
-                note: card.querySelector('.note-input').value
-            })).filter(c => c.note !== "");
-
-            Swal.fire({ title: 'กำลังส่งข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-            const payload = {
-                action: "submitReport",
-                name: document.getElementById('name').value,
-                id: document.getElementById('studentId').value,
-                date: document.getElementById('workDate').value,
-                shift: document.getElementById('shiftTime').value,
-                signature: signaturePad.toDataURL(),
-                staffName: document.getElementById('staffName').value,
-                faceImage: faceBase64,
-                cases: cases
-            };
-
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-            .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!', timer: 2000 }).then(() => location.reload()))
-            .catch(() => Swal.fire('Error', 'ส่งข้อมูลไม่สำเร็จ', 'error'));
-        }
-    </script>
-</body>
-</html>
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-xl
