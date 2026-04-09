@@ -15,21 +15,18 @@
         .input-field { border: 2px solid #e2e8f0; border-radius: 16px; width: 100%; padding: 1rem; margin-bottom: 0.8rem; background: white; }
         .case-card { background: white; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 25px; border-left: 10px solid #2dd4bf; position: relative; }
         .label-text { font-size: 1.1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.4rem; display: block; }
-        
-        /* ล็อกช่องเซ็นชื่อให้มั่นคงที่สุด */
         .sig-container { position: relative; width: 100%; height: 220px; background: #f8fafc; border: 2px dashed #99f6e4; border-radius: 20px; overflow: hidden; }
         #signature-pad { width: 100%; height: 100%; touch-action: none; position: absolute; top: 0; left: 0; z-index: 5; }
         #signature-view { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 10; display: none; background: white; }
-
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .disabled-btn { opacity: 0.3; pointer-events: none; }
+        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        .disabled-btn { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
     </style>
 </head>
 <body class="px-4">
     <div id="video-container">
         <video id="video" width="90%" autoplay playsinline class="rounded-3xl border-4 border-white mb-6"></video>
         <div class="flex gap-4">
-            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold">📸 ถ่ายรูป</button>
+            <button onclick="takePhoto()" class="bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold">📸 ถ่ายรูปสแกนหน้า</button>
             <button onclick="closeCamera()" class="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold">ปิด</button>
         </div>
     </div>
@@ -71,10 +68,12 @@
 
         <div class="mb-12 text-center">
             <p id="lock-msg" class="text-red-500 text-sm mb-4 font-bold bg-red-50 p-2 rounded-xl">⚠️ ต้องให้ อ.เซ็นและพิมพ์ชื่อก่อนสแกนหน้า</p>
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white overflow-hidden shadow-xl">
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-48 h-48 rounded-full border-8 border-white overflow-hidden shadow-xl bg-gray-200">
                 <img id="face-img" src="" class="w-full h-full object-cover">
             </div>
-            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">📸 สแกนหน้ายืนยันตัวตน</button>
+            <button id="camera-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-6 rounded-[30px] font-bold text-xl disabled-btn">
+                📸 สแกนหน้ายืนยันตัวตน
+            </button>
         </div>
 
         <button id="submit-btn" onclick="submitAll()" class="w-full btn-teal p-7 rounded-[35px] font-bold text-2xl shadow-xl disabled-btn">บันทึกและส่งรายงาน</button>
@@ -85,20 +84,17 @@
         let signaturePad, stream, faceBase64 = "", finalSigData = "";
 
         window.onload = function() {
-            // ดึงข้อมูลพื้นฐาน
-            document.getElementById('name').value = localStorage.getItem('savedName') || "ไม่พบชื่อ";
-            document.getElementById('studentId').value = localStorage.getItem('savedId') || "ไม่พบรหัส";
+            document.getElementById('name').value = localStorage.getItem('savedName') || "";
+            document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
             document.getElementById('workDate').valueAsDate = new Date();
 
-            // ตั้งค่า Signature
             const canvas = document.getElementById('signature-pad');
             signaturePad = new SignaturePad(canvas, {
                 onEnd: function() {
-                    // ทันทีที่เซ็นเสร็จ ให้ Snapshot ไว้ในความจำเครื่อง
                     finalSigData = signaturePad.toDataURL();
                     const view = document.getElementById('signature-view');
                     view.src = finalSigData;
-                    view.style.display = 'block'; // แปะรูปทับเพื่อกันเด้งหาย
+                    view.style.display = 'block'; // ล็อกภาพทันทีที่เซ็นเสร็จ
                     checkCompletion();
                 }
             });
@@ -108,7 +104,7 @@
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
                 canvas.getContext("2d").scale(ratio, ratio);
-                if (finalSigData) signaturePad.fromDataURL(finalSigData);
+                if(finalSigData) signaturePad.fromDataURL(finalSigData);
             }
             window.onresize = resizeCanvas;
             resizeCanvas();
@@ -123,12 +119,13 @@
         }
 
         function checkCompletion() {
-            const hasSig = finalSigData !== "";
-            const hasStaffName = document.getElementById('staffName').value.trim().length > 2;
+            const hasSig = finalSigData.length > 500; // เช็คว่ามีการเซ็นจริง
+            const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
             const camBtn = document.getElementById('camera-btn');
             const submitBtn = document.getElementById('submit-btn');
             const lockMsg = document.getElementById('lock-msg');
 
+            // ถ้ามีลายเซ็น และ มีชื่ออาจารย์ ให้เปิดปุ่มสแกนหน้า
             if (hasSig && hasStaffName) {
                 camBtn.classList.remove('disabled-btn');
                 lockMsg.classList.add('hidden');
@@ -136,7 +133,8 @@
                 camBtn.classList.add('disabled-btn');
                 lockMsg.classList.remove('hidden');
             }
-            
+
+            // ถ้ามีครบทุกอย่างรวมรูปหน้า ให้เปิดปุ่มส่ง
             if (hasSig && hasStaffName && faceBase64) {
                 submitBtn.classList.remove('disabled-btn');
             } else {
@@ -144,13 +142,12 @@
             }
         }
 
-        // --- ส่วนเสริมฟังก์ชันอื่นๆ (Case, Camera, Submit) ---
         function addCase(isFirst = false) {
             const container = document.getElementById('caseContainer');
             const div = document.createElement('div');
             div.className = 'case-card';
             const delBtn = isFirst ? "" : `<div style="position:absolute;top:15px;right:15px;color:#ccc;" onclick="this.parentElement.remove()">×</div>`;
-            div.innerHTML = `${delBtn}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input" placeholder="พิมพ์ชื่อ/HN"><label class="label-text text-sm">Diagnosis</label><textarea rows="2" class="input-field diag-input"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
+            div.innerHTML = `${delBtn}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field patient-input"><label class="label-text text-sm">Diagnosis</label><textarea rows="1" class="input-field diag-input"></textarea><label class="label-text text-sm">กิจกรรม</label><select class="input-field note-input font-bold"><option value="">-- เลือก --</option><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
             container.appendChild(div);
         }
 
@@ -159,7 +156,7 @@
                 document.getElementById('video-container').style.display = 'flex';
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 document.getElementById('video').srcObject = stream;
-            } catch (err) { alert('กล้องไม่ทำงาน'); }
+            } catch (err) { alert('เข้าถึงกล้องไม่ได้'); }
         }
 
         function takePhoto() {
@@ -170,8 +167,7 @@
             faceBase64 = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('face-img').src = faceBase64;
             document.getElementById('preview-photo').classList.remove('hidden');
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
+            closeCamera();
             checkCompletion();
         }
 
@@ -190,21 +186,22 @@
 
             Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-            const payload = {
-                action: "submitReport",
-                name: document.getElementById('name').value,
-                id: document.getElementById('studentId').value,
-                date: document.getElementById('workDate').value,
-                shift: document.getElementById('shiftTime').value,
-                signature: finalSigData,
-                staffName: document.getElementById('staffName').value,
-                faceImage: faceBase64,
-                cases: cases
-            };
-
-            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "submitReport",
+                    name: document.getElementById('name').value,
+                    id: document.getElementById('studentId').value,
+                    date: document.getElementById('workDate').value,
+                    shift: document.getElementById('shiftTime').value,
+                    signature: finalSigData,
+                    staffName: document.getElementById('staffName').value,
+                    faceImage: faceBase64,
+                    cases: cases
+                })
+            })
             .then(() => Swal.fire({ icon: 'success', title: 'สำเร็จ!', timer: 2000 }).then(() => location.reload()))
-            .catch(() => Swal.fire('Error', 'ส่งข้อมูลไม่สำเร็จ', 'error'));
+            .catch(() => Swal.fire('Error', 'ส่งไม่สำเร็จ', 'error'));
         }
     </script>
 </body>
