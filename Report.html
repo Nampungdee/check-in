@@ -149,19 +149,35 @@
         });
 
        async function openCamera() {
+            // 1. แสดงคอนเทนเนอร์วิดีโอ
+            document.getElementById('video-container').style.display = 'flex';
+            const video = document.getElementById('video');
+
+            // 2. ตั้งค่าการเข้าถึงกล้องแบบระบุตัวแปรละเอียด (เหมือนโค้ดตัวอย่างที่หมอให้มา)
+            const constraints = {
+                video: { 
+                    facingMode: "user", // บังคับใช้กล้องหน้า
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+
             try {
-                document.getElementById('video-container').style.display = 'flex';
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "user" }, 
-                    audio: false 
-                });
-                const video = document.getElementById('video');
-                video.setAttribute('playsinline', ''); // จำเป็นมากสำหรับ Android ใน LINE
-                video.setAttribute('muted', '');       // จำเป็นมากสำหรับ Android ใน LINE
+                // 3. เริ่มเรียกใช้งานกล้อง
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                // 4. ใส่ Attribute สำคัญเพื่อให้เล่นใน LINE ได้ (Playsinline)
+                video.setAttribute('playsinline', ''); 
                 video.srcObject = stream;
+                
+                // 5. สั่งให้เล่นวิดีโอทันที
                 video.play();
-            } catch (err) { 
-                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาตสิทธิ์', 'error'); 
+                
+            } catch (err) {
+                console.error("Camera Error: ", err);
+                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาตสิทธิ์ใน LINE', 'error');
+                document.getElementById('video-container').style.display = 'none';
             }
         }
         function takePhoto() {
