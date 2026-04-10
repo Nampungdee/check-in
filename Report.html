@@ -19,7 +19,7 @@
         #signature-pad { width: 100%; height: 100%; touch-action: none; }
         #signature-frozen-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; display: none; z-index: 20; object-fit: contain; pointer-events: none; }
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        /* สำหรับ iPad */
+        /* แก้ไขหน้าจอสำหรับ iPad */
         .max-w-md { max-width: 480px !important; margin: auto; }
         #preview-photo { width: 110px; height: 110px; flex-shrink: 0; }
     </style>
@@ -97,14 +97,12 @@
         let sigPad, stream, faceImg = "", sigImg = "";
 
         document.addEventListener('DOMContentLoaded', function() {
-            // ระบบดึงข้อมูลสำหรับ Chrome
             const savedName = localStorage.getItem('savedName') || localStorage.getItem('name');
             const savedId = localStorage.getItem('savedId') || localStorage.getItem('studentId');
             if (savedName) document.getElementById('name').value = savedName;
             if (savedId) document.getElementById('studentId').value = savedId;
             document.getElementById('workDate').valueAsDate = new Date();
 
-            // พิมพ์ไปเซฟไป เพื่อให้ Chrome จำแม่นขึ้น
             document.getElementById('name').addEventListener('input', (e) => localStorage.setItem('savedName', e.target.value));
             document.getElementById('studentId').addEventListener('input', (e) => localStorage.setItem('savedId', e.target.value));
 
@@ -113,4 +111,44 @@
         });
 
         function checkNext() {
-            const hasStaffName = document.getElementById('staffName').value
+            const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
+            const hasSignature = sigImg !== ""; 
+            const camBtn = document.getElementById('cam-btn');
+            if (hasStaffName && hasSignature) {
+                camBtn.classList.remove('opacity-30', 'pointer-events-none');
+            } else {
+                camBtn.classList.add('opacity-30', 'pointer-events-none');
+            }
+        }
+
+        function initSignature() {
+            const canvas = document.getElementById("signature-pad");
+            sigPad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: 'rgb(0, 0, 0)',
+                velocityFilterWeight: 0.5,
+                throttle: 16
+            });
+            sigPad.addEventListener("endStroke", () => {
+                sigImg = sigPad.toDataURL();
+                document.getElementById('signature-frozen-view').src = sigImg;
+                document.getElementById('signature-frozen-view').style.display = 'block';
+                checkNext();
+            });
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
+
+        document.addEventListener('input', (e) => { if (e.target.id === 'staffName') checkNext(); });
+
+        async function openCamera() {
+            try {
+                document.getElementById('video-container').style.display = 'flex';
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+            } catch (err) {
+                Swal.fire('กล้องไม่ทำงาน', 'โปรดอนุญาต
