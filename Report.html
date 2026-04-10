@@ -70,9 +70,9 @@
                 </div>
             </div>
             
-            <button onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm">
-                📸 สแกนหน้ายืนยันตัวตน
-            </button>
+         <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm opacity-30 pointer-events-none">
+    📸 สแกนหน้ายืนยันตัวตน
+</button>
             
             <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg">
                 <img id="face-img" src="" class="w-full h-full object-cover">
@@ -131,7 +131,46 @@
     canvas.height = canvas.offsetHeight * ratio;
     canvas.getContext("2d").scale(ratio, ratio);
 }
+// ฟังก์ชันตรวจสอบ: ถ้าเซ็นแล้ว + ใส่ชื่ออาจารย์แล้ว -> ให้กดสแกนหน้าได้
+function checkNext() {
+    const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
+    const hasSignature = sigImg !== ""; // เช็คว่ามีข้อมูลลายเซ็นในตัวแปรหรือยัง
+    
+    const camBtn = document.getElementById('cam-btn');
+    if (hasStaffName && hasSignature) {
+        camBtn.classList.remove('opacity-30', 'pointer-events-none');
+    } else {
+        camBtn.classList.add('opacity-30', 'pointer-events-none');
+    }
+}
 
+// แก้ไขฟังก์ชัน initSignature เดิม (เพิ่มการเรียก checkNext)
+function initSignature() {
+    const canvas = document.getElementById("signature-pad");
+    sigPad = new SignaturePad(canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(0, 0, 0)'
+    });
+
+    sigPad.addEventListener("endStroke", () => {
+        sigImg = sigPad.toDataURL();
+        document.getElementById('signature-frozen-view').src = sigImg;
+        document.getElementById('signature-frozen-view').style.display = 'block';
+        checkNext(); // เพิ่มบรรทัดนี้: เช็คทุกครั้งที่เซ็นเสร็จ
+    });
+
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+}
+
+// เพิ่ม Event Listener ให้กับช่องชื่ออาจารย์ด้วย (วางไว้ใน window.onload หรือลอยๆ ก็ได้ครับ)
+document.addEventListener('input', function (e) {
+    if (e.target.id === 'staffName') {
+        checkNext(); // เช็คทุกครั้งที่พิมพ์ชื่ออาจารย์
+    }
+});
         async function openCamera() {
             document.getElementById('video-container').style.display = 'flex';
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
