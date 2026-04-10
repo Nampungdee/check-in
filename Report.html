@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -30,15 +30,15 @@
     <div class="max-w-md mx-auto pt-4">
         <div id="step1">
             <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
-                <h1 class="text-xl font-bold">ข้อมูล นสพ. และกิจกรรม</h1>
+                <h1 class="text-xl font-bold">ข้อมูลรายงานกิจกรรม</h1>
             </div>
             
-            <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
-                <label class="label-text">ชื่อ นสพ.</label>
-                <input type="text" id="name" class="input-field mb-3" placeholder="กำลังโหลดชื่อ...">
+            <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4 border-2 border-mint-50">
+                <label class="label-text">ชื่อ-นามสกุล</label>
+                <input type="text" id="name" class="input-field mb-3" placeholder="ตรวจสอบข้อมูลหน้าแรก">
                 
-                <label class="label-text">รหัสประจำตัวนิสิต</label>
-                <input type="text" id="studentId" class="input-field mb-3" placeholder="กำลังโหลดรหัส...">
+                <label class="label-text">รหัสประจำตัว</label>
+                <input type="text" id="studentId" class="input-field mb-3" placeholder="ตรวจสอบข้อมูลหน้าแรก">
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
@@ -71,4 +71,79 @@
             </div>
             
             <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 opacity-30 pointer-events-none">📸 สแกนหน้ายืนยันชุด</button>
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg
+            <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg"><img id="face-img" src="" class="w-full h-full object-cover"></div>
+
+            <div class="flex gap-3">
+                <button onclick="goToStep1()" class="w-1/3 bg-gray-200 text-gray-600 p-5 rounded-[25px] font-bold">ย้อนกลับ</button>
+                <button id="submit-btn" onclick="submitAll()" class="w-2/3 bg-[#0d9488] text-white p-5 rounded-[25px] font-bold text-lg opacity-30 pointer-events-none">ส่งรายงานและกลับบ้าน</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="Config.js"></script>
+    <script>
+        let sigPad, stream, faceImg = "", sigImg = "";
+
+        window.onload = function() {
+            // ระบบกวาดหาข้อมูลแบบ Super Fetch
+            const name = localStorage.getItem('savedName') || localStorage.getItem('name') || localStorage.getItem('userName') || "";
+            const id = localStorage.getItem('savedId') || localStorage.getItem('studentId') || localStorage.getItem('id') || "";
+            
+            document.getElementById('name').value = name;
+            document.getElementById('studentId').value = id;
+            document.getElementById('workDate').valueAsDate = new Date();
+            
+            // ถ้าชื่อไม่ขึ้น ให้ระบบจำค่าใหม่เมื่อพิมพ์
+            document.getElementById('name').addEventListener('input', (e) => localStorage.setItem('savedName', e.target.value));
+            document.getElementById('studentId').addEventListener('input', (e) => localStorage.setItem('savedId', e.target.value));
+
+            initSignature();
+            addCase(true);
+        };
+
+        function initSignature() {
+            const canvas = document.getElementById("signature-pad");
+            sigPad = new SignaturePad(canvas, {
+                onEnd: function() {
+                    sigImg = sigPad.toDataURL();
+                    document.getElementById('signature-frozen-view').src = sigImg;
+                    document.getElementById('signature-frozen-view').style.display = 'block';
+                    checkNext();
+                }
+            });
+            const resize = () => {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            };
+            window.addEventListener("resize", resize);
+            resize();
+        }
+
+        function addCase(isFirst = false) {
+            const container = document.getElementById('caseContainer');
+            const div = document.createElement('div');
+            div.className = 'case-card shadow-sm';
+            const del = isFirst ? "" : `<button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-gray-300 text-2xl">×</button>`;
+            div.innerHTML = `${del}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field p-in mb-2"><label class="label-text text-sm">Diagnosis</label><input type="text" class="input-field d-in mb-2"><label class="label-text text-sm">กิจกรรม</label><select class="input-field n-in font-bold"><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
+            container.appendChild(div);
+        }
+
+        function clearSig() { sigPad.clear(); sigImg = ""; document.getElementById('signature-frozen-view').style.display = 'none'; checkNext(); }
+        function goToStep1() { document.getElementById('step2').style.display = 'none'; document.getElementById('step1').style.display = 'block'; }
+        
+        function goToStep2() { 
+            document.getElementById('step1').style.display = 'none'; 
+            document.getElementById('step2').style.display = 'block'; 
+            window.scrollTo(0,0);
+            const canvas = document.getElementById("signature-pad");
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            if(sigImg) sigPad.fromDataURL(sigImg);
+        }
+        
+        function checkNext() {
+            const hasName = document.getElementById('staffName').value.trim().
