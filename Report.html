@@ -99,24 +99,38 @@
         };
 
         function initSignature() {
-            const canvas = document.getElementById("signature-pad");
-            sigPad = new SignaturePad(canvas, {
-                backgroundColor: 'rgba(255, 255, 255, 0)',
-                penColor: 'rgb(0, 0, 0)'
-            });
+    const canvas = document.getElementById("signature-pad");
+    
+    // 1. ล็อกตัวแปรให้แม่นยำขึ้น
+    sigPad = new SignaturePad(canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(0, 0, 0)',
+        velocityFilterWeight: 0.7, // ช่วยให้เส้นลื่นแต่ไม่กระโดด
+        minWidth: 1.5,
+        maxWidth: 3.5
+    });
 
-            // แก้บั๊ก "ข้อมูลไม่ครบ": บันทึกรูปทันทีที่นิ้วยกขึ้น
-            sigPad.addEventListener("endStroke", () => {
-                sigImg = sigPad.toDataURL();
-                document.getElementById('signature-frozen-view').src = sigImg;
-                document.getElementById('signature-frozen-view').style.display = 'block';
-            });
+    // 2. ล็อกหน้าจอไม่ให้ขยับเวลาเซ็น (สำคัญมาก)
+    sigPad.addEventListener("beginStroke", () => {
+        // หยุดการเลื่อนหน้าจอขณะลากนิ้ว
+        document.body.style.overflow = "hidden"; 
+    });
 
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-        }
+    sigPad.addEventListener("endStroke", () => {
+        // กลับมาเลื่อนหน้าจอได้ปกติเมื่อยกนิ้ว
+        document.body.style.overflow = "auto";
+        sigImg = sigPad.toDataURL();
+        document.getElementById('signature-frozen-view').src = sigImg;
+        document.getElementById('signature-frozen-view').style.display = 'block';
+    });
+
+    // 3. กำหนดขนาดครั้งเดียวให้จบ (Fixed Ratio)
+    // การไม่ใส่ Resize Event จะทำให้ช่องเซ็นนิ่งกว่าเดิมครับ
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+}
 
         async function openCamera() {
             document.getElementById('video-container').style.display = 'flex';
