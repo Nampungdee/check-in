@@ -74,30 +74,10 @@
                 </div>
             </div>
             
-           <div id="camera-section" class="bg-white rounded-[25px] p-4 shadow-sm mb-6 border-2 border-emerald-50">
-    <center>
-        <video id="video" width="100%" autoplay playsinline 
-               poster="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png"
-               class="rounded-2xl border-2 border-gray-100 mb-4 hidden"></video>
-        
-        <div id="preview-photo" class="hidden mb-4 w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-md">
-            <img id="face-img" src="" class="w-full h-full object-cover">
-        </div>
-    </center>
-
-    <div class="flex flex-col gap-3">
-        <button id="cam-btn" onclick="openCamera()" 
-                class="w-full bg-[#001D53] text-white p-5 rounded-[20px] font-bold text-lg shadow-sm opacity-30 pointer-events-none">
-            1. เปิดกล้อง
-        </button>
-        
-        <button id="capture-btn" onclick="takePhoto()" 
-                class="w-full bg-green-500 text-white p-5 rounded-[20px] font-bold text-lg hidden shadow-sm">
-            2. ถ่ายรูปยืนยันตัวตน
-        </button>
-    </div>
-    <p class="text-center text-[10px] text-red-600 font-medium mt-3">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</p>
-</div>
+            <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm opacity-30 pointer-events-none">
+                📸 สแกนหน้าออกเวร<br>
+                <span class="text-[10px] text-red-600 font-medium">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
+            </button>
             
             <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg">
                 <img id="face-img" src="" class="w-full h-full object-cover">
@@ -168,48 +148,12 @@
             }
         });
 
-      async function openCamera() {
-    const video = document.getElementById('video');
-    const camBtn = document.getElementById('cam-btn');
-    const captureBtn = document.getElementById('capture-btn');
+        async function openCamera() {
+            document.getElementById('video-container').style.display = 'flex';
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('video').srcObject = stream;
+        }
 
-    try {
-        // ขอสิทธิ์แบบตรงไปตรงมาเหมือนระบบเดิม
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        
-        video.srcObject = stream;
-        video.classList.remove('hidden'); // แสดงวิดีโอเมื่อได้รับสิทธิ์
-        camBtn.classList.add('hidden');   // ซ่อนปุ่มเปิดกล้อง
-        captureBtn.classList.remove('hidden'); // โชว์ปุ่มถ่ายรูปแทน
-        
-        video.setAttribute("playsinline", true);
-        video.play();
-
-    } catch (err) {
-        console.error("Camera Error:", err);
-        Swal.fire({
-            title: 'กล้องไม่ทำงาน',
-            text: 'โปรดลองกดที่จุด 3 จุดมุมบน แล้วเลือก "เปิดด้วยเบราว์เซอร์อื่น"',
-            icon: 'warning'
-        });
-    }
-}
-
-// แก้ฟังก์ชันถ่ายรูปให้ซ่อนวิดีโอด้วยครับ
-function takePhoto() {
-    const v = document.getElementById('video');
-    const c = document.createElement('canvas');
-    c.width = v.videoWidth; c.height = v.videoHeight;
-    c.getContext('2d').drawImage(v, 0, 0);
-    faceImg = c.toDataURL('image/jpeg', 0.6);
-    
-    document.getElementById('face-img').src = faceImg;
-    document.getElementById('preview-photo').classList.remove('hidden');
-    document.getElementById('video').classList.add('hidden'); // ซ่อนวิดีโอหลังถ่าย
-    document.getElementById('capture-btn').innerText = "📸 ถ่ายใหม่";
-    
-    if(stream) stream.getTracks().forEach(t => t.stop());
-}
         function takePhoto() {
             const v = document.getElementById('video');
             const c = document.createElement('canvas');
