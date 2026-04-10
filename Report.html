@@ -149,37 +149,42 @@
         });
 
        async function openCamera() {
-            // 1. แสดงคอนเทนเนอร์วิดีโอ
-            document.getElementById('video-container').style.display = 'flex';
-            const video = document.getElementById('video');
+    // 1. แสดงหน้าจอกล้อง
+    document.getElementById('video-container').style.display = 'flex';
+    
+    // 2. ตั้งค่าแบบเรียบง่ายที่สุดเพื่อให้ LINE ยอมปล่อยสิทธิ์
+    const constraints = { 
+        video: { 
+            facingMode: "user" // บังคับกล้องหน้า
+        } 
+    };
 
-            // 2. ตั้งค่าการเข้าถึงกล้องแบบระบุตัวแปรละเอียด (เหมือนโค้ดตัวอย่างที่หมอให้มา)
-            const constraints = {
-                video: { 
-                    facingMode: "user", // บังคับใช้กล้องหน้า
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
-                audio: false
-            };
-
-            try {
-                // 3. เริ่มเรียกใช้งานกล้อง
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                // 4. ใส่ Attribute สำคัญเพื่อให้เล่นใน LINE ได้ (Playsinline)
-                video.setAttribute('playsinline', ''); 
-                video.srcObject = stream;
-                
-                // 5. สั่งให้เล่นวิดีโอทันที
-                video.play();
-                
-            } catch (err) {
-                console.error("Camera Error: ", err);
-                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาตสิทธิ์ใน LINE', 'error');
-                document.getElementById('video-container').style.display = 'none';
-            }
-        }
+    try {
+        // ขอสิทธิ์แบบตรงไปตรงมา
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const v = document.getElementById('video');
+        v.srcObject = stream;
+        
+        // บังคับเล่นวิดีโอ (ป้องกันจอดำใน LINE)
+        v.setAttribute("playsinline", true); // สำคัญมากสำหรับ Browser ในแอป
+        v.play();
+        
+    } catch (err) {
+        console.error(err);
+        // ถ้ายังเข้าไม่ได้ ให้ลองแบบไม่ระบุกล้อง (บางรุ่นต้องการแบบนี้)
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(s => {
+                stream = s;
+                const v = document.getElementById('video');
+                v.srcObject = stream;
+                v.setAttribute("playsinline", true);
+                v.play();
+            })
+            .catch(e => {
+                Swal.fire('กล้องไม่ทำงาน', 'โปรดลองกดที่จุด 3 จุดมุมบน แล้วเลือก "เปิดด้วยเบราว์เซอร์อื่น"', 'warning');
+            });
+    }
+}
         function takePhoto() {
             const v = document.getElementById('video');
             const c = document.createElement('canvas');
