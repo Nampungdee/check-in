@@ -29,13 +29,13 @@
 
     <div class="max-w-md mx-auto pt-4">
         <div id="step1">
-      <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
-    <h1 class="text-lg font-bold leading-tight">
-        รายงานกิจกรรมขณะปฏิบัติงานนอกเวลาราชการ<br>
-        นักศึกษาแพทย์ปีที่ 5 มหาวิทยาลัยนเรศวร<br>
-        กลุ่มงานสูติ - นรีเวชกรรมและวางแผนครอบครัว
-    </h1>
-</div>
+            <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
+                <h1 class="text-lg font-bold leading-tight">
+                    รายงานกิจกรรมขณะปฏิบัติงานนอกเวลาราชการ<br>
+                    นักศึกษาแพทย์ปีที่ 5 มหาวิทยาลัยนเรศวร<br>
+                    กลุ่มงานสูติ - นรีเวชกรรมและวางแผนครอบครัว
+                </h1>
+            </div>
             
             <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
                 <label class="label-text">ชื่อ นสพ.</label>
@@ -74,10 +74,10 @@
                 </div>
             </div>
             
-       <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm opacity-30 pointer-events-none">
-    📸 สแกนหน้าออกเวร<br>
-    <span class="text-[10px] text-red-600 font-medium">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
-</button>
+            <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm opacity-30 pointer-events-none">
+                📸 สแกนหน้าออกเวร<br>
+                <span class="text-[10px] text-red-600 font-medium">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
+            </button>
             
             <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg">
                 <img id="face-img" src="" class="w-full h-full object-cover">
@@ -95,7 +95,6 @@
         let sigPad, stream, faceImg = "", sigImg = "";
 
         window.onload = function() {
-            // ระบบดึงข้อมูล: กวาดหาทุกชื่อที่คุณหมอน่าจะใช้
             document.getElementById('name').value = localStorage.getItem('savedName') || localStorage.getItem('name') || "";
             document.getElementById('studentId').value = localStorage.getItem('savedId') || localStorage.getItem('studentId') || "";
             document.getElementById('workDate').valueAsDate = new Date();
@@ -103,87 +102,52 @@
             addCase(true);
         };
 
-     // --- วางทับแทนที่ก้อนเดิมทั้งหมด ตั้งแต่บรรทัด 103 เป็นต้นไปครับ ---
+        function checkNext() {
+            const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
+            const hasSignature = sigImg !== ""; 
+            const camBtn = document.getElementById('cam-btn');
+            
+            if (hasStaffName && hasSignature) {
+                camBtn.classList.remove('opacity-30', 'pointer-events-none');
+            } else {
+                camBtn.classList.add('opacity-30', 'pointer-events-none');
+            }
+        }
 
-function checkNext() {
-    const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
-    const hasSignature = sigImg !== ""; 
-    
-    const camBtn = document.getElementById('cam-btn');
-    if (hasStaffName && hasSignature) {
-        camBtn.classList.remove('opacity-30', 'pointer-events-none');
-    } else {
-        camBtn.classList.add('opacity-30', 'pointer-events-none');
-    }
-}
+        function initSignature() {
+            const canvas = document.getElementById("signature-pad");
+            sigPad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: 'rgb(0, 0, 0)',
+                velocityFilterWeight: 0.7,
+                minWidth: 1.5,
+                maxWidth: 3.5
+            });
 
-function initSignature() {
-    const canvas = document.getElementById("signature-pad");
-    
-    // ล็อกตัวแปรให้แม่นยำและนิ่งขึ้น
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)',
-        velocityFilterWeight: 0.7,
-        minWidth: 1.5,
-        maxWidth: 3.5
-    });
+            sigPad.addEventListener("beginStroke", () => {
+                document.body.style.overflow = "hidden"; 
+            });
 
-    // ล็อกหน้าจอไม่ให้ขยับเวลาเซ็น
-    sigPad.addEventListener("beginStroke", () => {
-        document.body.style.overflow = "hidden"; 
-    });
+            sigPad.addEventListener("endStroke", () => {
+                document.body.style.overflow = "auto";
+                sigImg = sigPad.toDataURL();
+                document.getElementById('signature-frozen-view').src = sigImg;
+                document.getElementById('signature-frozen-view').style.display = 'block';
+                checkNext(); 
+            });
 
-    sigPad.addEventListener("endStroke", () => {
-        document.body.style.overflow = "auto";
-        sigImg = sigPad.toDataURL();
-        document.getElementById('signature-frozen-view').src = sigImg;
-        document.getElementById('signature-frozen-view').style.display = 'block';
-        
-        // เช็คเงื่อนไขปลดล็อกปุ่มสแกนหน้าทันที
-        checkNext(); 
-    });
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
 
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-}
+        document.addEventListener('input', function (e) {
+            if (e.target.id === 'staffName') {
+                checkNext();
+            }
+        });
 
-// ตรวจสอบชื่ออาจารย์ขณะพิมพ์
-document.addEventListener('input', function (e) {
-    if (e.target.id === 'staffName') {
-        checkNext();
-    }
-});
-
-// แก้ไขฟังก์ชัน initSignature เดิม (เพิ่มการเรียก checkNext)
-function initSignature() {
-    const canvas = document.getElementById("signature-pad");
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)'
-    });
-
-    sigPad.addEventListener("endStroke", () => {
-        sigImg = sigPad.toDataURL();
-        document.getElementById('signature-frozen-view').src = sigImg;
-        document.getElementById('signature-frozen-view').style.display = 'block';
-        checkNext(); // เพิ่มบรรทัดนี้: เช็คทุกครั้งที่เซ็นเสร็จ
-    });
-
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-}
-
-// เพิ่ม Event Listener ให้กับช่องชื่ออาจารย์ด้วย (วางไว้ใน window.onload หรือลอยๆ ก็ได้ครับ)
-document.addEventListener('input', function (e) {
-    if (e.target.id === 'staffName') {
-        checkNext(); // เช็คทุกครั้งที่พิมพ์ชื่ออาจารย์
-    }
-});
         async function openCamera() {
             document.getElementById('video-container').style.display = 'flex';
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -211,14 +175,23 @@ document.addEventListener('input', function (e) {
             container.appendChild(div);
         }
 
-        function clearSig() { sigPad.clear(); sigImg = ""; document.getElementById('signature-frozen-view').style.display = 'none'; }
-        function goToStep1() { document.getElementById('step2').style.display = 'none'; document.getElementById('step1').style.display = 'block'; }
+        function clearSig() { 
+            sigPad.clear(); 
+            sigImg = ""; 
+            document.getElementById('signature-frozen-view').style.display = 'none';
+            checkNext();
+        }
+
+        function goToStep1() { 
+            document.getElementById('step2').style.display = 'none'; 
+            document.getElementById('step1').style.display = 'block'; 
+        }
         
         function goToStep2() { 
             document.getElementById('step1').style.display = 'none'; 
             document.getElementById('step2').style.display = 'block'; 
             window.scrollTo(0,0);
-            initSignature(); // รีเซ็ตขนาดช่องเซ็นให้พร้อมวาดทันทีที่เปิดหน้านี้
+            initSignature();
             if(sigImg) sigPad.fromDataURL(sigImg);
         }
 
@@ -229,9 +202,8 @@ document.addEventListener('input', function (e) {
                 note: c.querySelector('.n-in').value
             }));
 
-            // เช็คข้อมูลครบถ้วน
             if(!sigImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาให้อาจารย์เซ็นชื่อด้วยครับ', 'warning');
-            if(!faceImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาสแกนหน้ายืนยันตัวตนด้วยครับ', 'warning');
+            if(!faceImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาสแกนหน้าออกเวรด้วยครับ', 'warning');
             if(!document.getElementById('staffName').value) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาพิมพ์ชื่ออาจารย์ด้วยครับ', 'warning');
 
             Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
