@@ -15,26 +15,25 @@
         .case-card { background: white; margin-bottom: 1rem; padding: 1.2rem; border-radius: 25px; border-left: 10px solid #2dd4bf; position: relative; }
         .label-text { font-size: 1rem; font-weight: 700; color: #134e4a; margin-bottom: 0.2rem; display: block; }
         .sig-page { display: none; }
-        .sig-container { position: relative; width: 100%; height: 250px; background: #fff; border: 3px solid #99f6e4; border-radius: 25px; overflow: hidden; touch-action: none; }
+        .sig-container { position: relative; width: 100%; height: 220px; background: #fff; border: 3px solid #99f6e4; border-radius: 25px; overflow: hidden; touch-action: none; }
         #signature-pad { width: 100%; height: 100%; touch-action: none; }
         #signature-frozen-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; display: none; z-index: 20; object-fit: contain; pointer-events: none; }
         #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        /* สำหรับ iPad */
+        .max-w-md { max-width: 480px !important; margin: auto; }
+        #preview-photo { width: 110px; height: 110px; flex-shrink: 0; }
     </style>
- /* ก๊อปปี้ไปวางต่อท้ายในส่วน <style> ครับ */
-.max-w-md { max-width: 450px !important; margin: auto; }
-#preview-photo { width: 120px; height: 120px; margin-top: 10px; }
-.flex.gap-3 { margin-bottom: 50px; } /* เพิ่มพื้นที่ด้านล่างให้เลื่อนปุ่มขึ้นมาได้ */
 </head>
-<body class="p-4 pb-10">
+<body class="p-4 pb-20">
     <div id="video-container">
-        <video id="video" width="90%" autoplay playsinline style="border-radius: 25px; border: 4px solid white;"></video>
-        <button onclick="takePhoto()" class="mt-5 bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-lg shadow-xl">📸 ถ่ายรูปยืนยันตัวตน</button>
+        <video id="video" width="85%" autoplay playsinline style="border-radius: 25px; border: 4px solid white;"></video>
+        <button onclick="takePhoto()" class="mt-5 bg-white text-gray-800 px-8 py-3 rounded-2xl font-bold text-lg shadow-xl">📸 ถ่ายรูปยืนยันตัวตน</button>
     </div>
 
     <div class="max-w-md mx-auto pt-4">
         <div id="step1">
-            <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
-                <h1 class="text-lg font-bold leading-tight">
+            <div class="mint-bg rounded-[30px] p-5 text-white text-center mb-6 shadow-lg">
+                <h1 class="text-base font-bold leading-tight">
                     รายงานกิจกรรมขณะปฏิบัติงานนอกเวลาราชการ<br>
                     นักศึกษาแพทย์ปีที่ 5 มหาวิทยาลัยนเรศวร<br>
                     กลุ่มงานสูติ - นรีเวชกรรมและวางแผนครอบครัว
@@ -43,10 +42,9 @@
             
             <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
                 <label class="label-text">ชื่อ นสพ.</label>
-                <input type="text" id="name" class="input-field mb-3" placeholder="พิมพ์ชื่อถ้าไม่ขึ้น">
+                <input type="text" id="name" class="input-field mb-3" placeholder="พิมพ์ชื่อ-นามสกุล">
                 <label class="label-text">รหัสประจำตัวนิสิต</label>
-                <input type="text" id="studentId" class="input-field mb-3" placeholder="พิมพ์รหัสถ้าไม่ขึ้น">
-                
+                <input type="text" id="studentId" class="input-field mb-3" placeholder="รหัสนิสิต">
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
                     <div><label class="label-text">เวลา</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-16:00"></div>
@@ -54,17 +52,17 @@
             </div>
 
             <div id="caseContainer"></div>
-            <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] py-4 rounded-2xl mb-6 font-bold bg-white">+ เพิ่มเคสคนไข้</button>
-            <button onclick="goToStep2()" class="w-full bg-[#0d9488] text-white p-6 rounded-[30px] font-bold text-xl shadow-lg">ต่อไป: ให้อาจารย์ลงนาม ➜</button>
+            <button onclick="addCase()" class="w-full border-2 border-dashed border-[#2dd4bf] text-[#0d9488] py-3 rounded-2xl mb-6 font-bold bg-white">+ เพิ่มเคสคนไข้</button>
+            <button onclick="goToStep2()" class="w-full bg-[#0d9488] text-white p-5 rounded-[30px] font-bold text-lg shadow-lg">ต่อไป: ให้อาจารย์ลงนาม ➜</button>
         </div>
 
         <div id="step2" class="sig-page">
-            <div class="bg-orange-400 rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
-                <h1 class="text-xl font-bold">อาจารย์ลงนาม</h1>
+            <div class="bg-orange-400 rounded-[30px] p-5 text-white text-center mb-4 shadow-lg">
+                <h1 class="text-lg font-bold">อาจารย์ลงนาม</h1>
             </div>
             
-            <div class="bg-white rounded-[25px] p-6 shadow-sm mb-6 border-2 border-orange-100">
-                <div class="flex justify-between items-center mb-3">
+            <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4 border-2 border-orange-100">
+                <div class="flex justify-between items-center mb-2">
                     <label class="label-text m-0">ลายเซ็นอาจารย์</label>
                     <button onclick="clearSig()" class="text-red-500 font-bold text-xs underline">ล้างจอ</button>
                 </div>
@@ -72,212 +70,47 @@
                     <canvas id="signature-pad"></canvas>
                     <img id="signature-frozen-view">
                 </div>
-                <div class="mt-6">
+                <div class="mt-4">
                     <label class="label-text">ชื่ออาจารย์ (ตัวบรรจง)</label>
                     <input type="text" id="staffName" class="input-field" placeholder="พิมพ์ชื่ออาจารย์">
                 </div>
             </div>
             
-            <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-3 rounded-[30px] font-bold text-lg mb-4 shadow-sm opacity-30 pointer-events-none">
-    📸 สแกนหน้าออกเวร<br>
-    <span class="text-[10px] text-red-600 font-medium">** เปลี่ยนชุดจากสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
-</button>
+            <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-3 rounded-[30px] font-bold text-base mb-4 shadow-sm opacity-30 pointer-events-none">
+                📸 สแกนหน้าออกเวร<br>
+                <span class="text-[10px] text-red-600">** เปลี่ยนชุดจากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
+            </button>
+            
+            <div id="preview-photo" class="hidden mb-4 mx-auto rounded-full border-4 border-white overflow-hidden shadow-lg">
+                <img id="face-img" src="" class="w-full h-full object-cover">
+            </div>
 
-<div id="preview-photo" class="hidden mb-4 mx-auto w-32 h-32 rounded-full border-4 border-white overflow-hidden shadow-lg flex-shrink-0">
-    <img id="face-img" src="" class="w-full h-full object-cover">
-</div>
-
-<div class="flex gap-3 mb-10">
-    <button onclick="goToStep1()" class="w-1/3 bg-gray-200 text-gray-600 p-4 rounded-[25px] font-bold">ย้อนกลับ</button>
-    <button onclick="submitAll()" class="w-2/3 bg-[#0d9488] text-white p-4 rounded-[25px] font-bold text-lg shadow-lg">ส่งรายงาน ➜</button>
-</div>
+            <div class="flex gap-3 pb-10">
+                <button onclick="goToStep1()" class="w-1/3 bg-gray-200 text-gray-600 p-4 rounded-[25px] font-bold">ย้อนกลับ</button>
+                <button onclick="submitAll()" class="w-2/3 bg-[#0d9488] text-white p-4 rounded-[25px] font-bold text-lg shadow-lg">ส่งรายงาน ➜</button>
+            </div>
+        </div>
+    </div>
 
     <script src="Config.js"></script>
     <script>
         let sigPad, stream, faceImg = "", sigImg = "";
 
-        window.onload = function() {
-            document.getElementById('name').value = localStorage.getItem('savedName') || localStorage.getItem('name') || "";
-            document.getElementById('studentId').value = localStorage.getItem('savedId') || localStorage.getItem('studentId') || "";
+        document.addEventListener('DOMContentLoaded', function() {
+            // ระบบดึงข้อมูลสำหรับ Chrome
+            const savedName = localStorage.getItem('savedName') || localStorage.getItem('name');
+            const savedId = localStorage.getItem('savedId') || localStorage.getItem('studentId');
+            if (savedName) document.getElementById('name').value = savedName;
+            if (savedId) document.getElementById('studentId').value = savedId;
             document.getElementById('workDate').valueAsDate = new Date();
+
+            // พิมพ์ไปเซฟไป เพื่อให้ Chrome จำแม่นขึ้น
+            document.getElementById('name').addEventListener('input', (e) => localStorage.setItem('savedName', e.target.value));
+            document.getElementById('studentId').addEventListener('input', (e) => localStorage.setItem('savedId', e.target.value));
+
             initSignature();
             addCase(true);
-        };
+        });
 
         function checkNext() {
-            const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
-            const hasSignature = sigImg !== ""; 
-            const camBtn = document.getElementById('cam-btn');
-            
-            if (hasStaffName && hasSignature) {
-                camBtn.classList.remove('opacity-30', 'pointer-events-none');
-            } else {
-                camBtn.classList.add('opacity-30', 'pointer-events-none');
-            }
-        }
-
-        function initSignature() {
-    const canvas = document.getElementById("signature-pad");
-    
-    // ปรับจูนให้นุ่มนวลขึ้นแต่ไม่กินทรัพยากรเครื่อง (ลื่นกว่าเดิม)
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)',
-        // ปรับค่าเหล่านี้เพื่อลดอาการกระตุก:
-        velocityFilterWeight: 0.5, // ลดค่าลงนิดหน่อยเพื่อให้ตอบสนองนิ้วเร็วขึ้น
-        minWidth: 1.0,            // ปรับเส้นให้ไม่หนาเทอะทะเกินไป
-        maxWidth: 2.5,
-        throttle: 16               // ล็อกความเร็วการวาดไว้ที่ 60fps (นิ่งและลื่น)
-    });
-
-    sigPad.addEventListener("beginStroke", () => {
-        document.body.style.overflow = "hidden"; 
-    });
-
-    sigPad.addEventListener("endStroke", () => {
-        document.body.style.overflow = "auto";
-        sigImg = sigPad.toDataURL('image/png', 1.0); // ใช้ความละเอียดสูงสุดแต่ไฟล์ไม่หนัก
-        document.getElementById('signature-frozen-view').src = sigImg;
-        document.getElementById('signature-frozen-view').style.display = 'block';
-        checkNext(); 
-    });
-
-    // ล็อกขนาด Canvas ให้สัมพันธ์กับความละเอียดหน้าจอแบบพอดี
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-}
-
-        document.addEventListener('input', function (e) {
-            if (e.target.id === 'staffName') {
-                checkNext();
-            }
-        });
-
-        async function openCamera() {
-    try {
-        // แสดง Container กล้องก่อน
-        document.getElementById('video-container').style.display = 'flex';
-        
-        // ตั้งค่ากล้องให้รองรับ Android หลายๆ รุ่น (ระบุความละเอียดที่เหมาะสม)
-        const constraints = { 
-            video: { 
-                facingMode: "user", // บังคับกล้องหน้า
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            },
-            audio: false // ไม่ขอใช้ไมโครโฟน เพื่อลดขั้นตอนการขอสิทธิ์
-        };
-
-        // ตรวจสอบว่าเบราว์เซอร์รองรับ getUserMedia หรือไม่
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error("Browser ของคุณไม่รองรับการเข้าถึงกล้อง");
-        }
-
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const video = document.getElementById('video');
-        
-        // เชื่อมต่อ Stream กับ Video Element
-        if ("srcObject" in video) {
-            video.srcObject = stream;
-        } else {
-            video.src = window.URL.createObjectURL(stream);
-        }
-
-        // สำคัญ: บังคับให้ Video เล่นทันที (Android บางรุ่นต้องการการสั่ง play)
-        video.onloadedmetadata = function(e) {
-            video.play();
-        };
-
-    } catch (err) {
-        console.error("Camera Error: ", err);
-        document.getElementById('video-container').style.display = 'none'; // ปิดหน้ากล้องถ้าพลาด
-        
-        let errorMsg = 'โปรดตรวจสอบการอนุญาตเข้าถึงกล้องในการตั้งค่าของ Browser';
-        if (err.name === 'NotAllowedError') {
-            errorMsg = 'คุณปฏิเสธการเข้าถึงกล้อง โปรดกดรูปแม่กุญแจที่แถบ URL เพื่ออนุญาตใหม่';
-        } else if (err.name === 'NotFoundError') {
-            errorMsg = 'ไม่พบกล้องในอุปกรณ์เครื่องนี้';
-        }
-        
-        Swal.fire({
-            icon: 'error',
-            title: 'กล้องไม่ทำงาน',
-            text: errorMsg,
-            confirmButtonText: 'ตกลง'
-        });
-    }
-}
-        function takePhoto() {
-            const v = document.getElementById('video');
-            const c = document.createElement('canvas');
-            c.width = v.videoWidth; c.height = v.videoHeight;
-            c.getContext('2d').drawImage(v, 0, 0);
-            faceImg = c.toDataURL('image/jpeg', 0.6);
-            document.getElementById('face-img').src = faceImg;
-            document.getElementById('preview-photo').classList.remove('hidden');
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
-        }
-
-        function addCase(isFirst = false) {
-            const container = document.getElementById('caseContainer');
-            const div = document.createElement('div');
-            div.className = 'case-card shadow-sm';
-            const del = isFirst ? "" : `<button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-gray-300 text-2xl">×</button>`;
-            div.innerHTML = `${del}<label class="label-text text-sm">ชื่อผู้ป่วย / HN</label><input type="text" class="input-field p-in mb-2"><label class="label-text text-sm">Diagnosis</label><input type="text" class="input-field d-in mb-2"><label class="label-text text-sm">กิจกรรม</label><select class="input-field n-in font-bold"><option value="P">P</option><option value="A">A</option><option value="O">O</option></select>`;
-            container.appendChild(div);
-        }
-
-        function clearSig() { 
-            sigPad.clear(); 
-            sigImg = ""; 
-            document.getElementById('signature-frozen-view').style.display = 'none';
-            checkNext();
-        }
-
-        function goToStep1() { 
-            document.getElementById('step2').style.display = 'none'; 
-            document.getElementById('step1').style.display = 'block'; 
-        }
-        
-        function goToStep2() { 
-            document.getElementById('step1').style.display = 'none'; 
-            document.getElementById('step2').style.display = 'block'; 
-            window.scrollTo(0,0);
-            initSignature();
-            if(sigImg) sigPad.fromDataURL(sigImg);
-        }
-
-        function submitAll() {
-            const cases = Array.from(document.querySelectorAll('.case-card')).map(c => ({
-                patient: c.querySelector('.p-in').value,
-                diag: c.querySelector('.d-in').value,
-                note: c.querySelector('.n-in').value
-            }));
-
-            if(!sigImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาให้อาจารย์เซ็นชื่อด้วยครับ', 'warning');
-            if(!faceImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาสแกนหน้าออกเวรด้วยครับ', 'warning');
-            if(!document.getElementById('staffName').value) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาพิมพ์ชื่ออาจารย์ด้วยครับ', 'warning');
-
-            Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
-                body: JSON.stringify({
-                    action: "submitReport",
-                    name: document.getElementById('name').value,
-                    id: document.getElementById('studentId').value,
-                    date: document.getElementById('workDate').value,
-                    shift: document.getElementById('shiftTime').value,
-                    signature: sigImg,
-                    faceImage: faceImg,
-                    staffName: document.getElementById('staffName').value,
-                    cases: cases
-                })
-            }).then(() => Swal.fire('สำเร็จ!', 'บันทึกเรียบร้อย กลับบ้านได้เลยครับคุณหมอ', 'success').then(() => location.reload()));
-        }
-    </script>
-</body>
-</html>
+            const hasStaffName = document.getElementById('staffName').value
