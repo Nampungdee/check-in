@@ -154,11 +154,28 @@
         });
 
         async function openCamera() {
-            document.getElementById('video-container').style.display = 'flex';
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('video').srcObject = stream;
-        }
-
+    try {
+        document.getElementById('video-container').style.display = 'flex';
+        // ปรับให้รองรับ Android หลายรุ่นขึ้น
+        const constraints = { 
+            video: { 
+                facingMode: "user",
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        };
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const videoElement = document.getElementById('video');
+        videoElement.srcObject = stream;
+        
+        // เพิ่มคำสั่งให้เล่นวิดีโอทันทีเพื่อป้องกันจอดำ
+        videoElement.onloadedmetadata = () => videoElement.play();
+        
+    } catch (err) {
+        console.error("Error accessing camera: ", err);
+        Swal.fire('กล้องไม่ทำงาน', 'โปรดตรวจสอบการอนุญาตเข้าถึงกล้องในเบราว์เซอร์', 'error');
+    }
+}
         function takePhoto() {
             const v = document.getElementById('video');
             const c = document.createElement('canvas');
