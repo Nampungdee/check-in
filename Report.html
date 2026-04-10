@@ -80,24 +80,26 @@
             addCase(true);
         };
 
-        function initSignature() {
-            const canvas = document.getElementById("signature-pad");
-            sigPad = new SignaturePad(canvas, {
-                onEnd: () => {
-                    sigImg = sigPad.toDataURL();
-                    document.getElementById('signature-frozen-view').src = sigImg;
-                    document.getElementById('signature-frozen-view').style.display = 'block';
-                }
-            });
-            const resize = () => {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-            };
-            window.addEventListener("resize", resize);
-            resize();
+       function initSignature() {
+    const canvas = document.getElementById("signature-pad");
+    // ตั้งค่า SignaturePad ทันที
+    sigPad = new SignaturePad(canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(0, 0, 0)',
+        onEnd: function() {
+            sigImg = sigPad.toDataURL();
+            document.getElementById('signature-frozen-view').src = sigImg;
+            document.getElementById('signature-frozen-view').style.display = 'block';
+            if (typeof checkNext === "function") checkNext(); 
         }
+    });
+
+    // ส่วนสำคัญที่ทำให้เซ็นได้: การคำนวณขนาดหน้าจอ
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+}
 
         function addCase(isFirst = false) {
             const container = document.getElementById('caseContainer');
