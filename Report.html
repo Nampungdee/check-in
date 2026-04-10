@@ -148,12 +148,22 @@
             }
         });
 
-        async function openCamera() {
-            document.getElementById('video-container').style.display = 'flex';
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('video').srcObject = stream;
+       async function openCamera() {
+            try {
+                document.getElementById('video-container').style.display = 'flex';
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user" }, 
+                    audio: false 
+                });
+                const video = document.getElementById('video');
+                video.setAttribute('playsinline', ''); // จำเป็นมากสำหรับ Android ใน LINE
+                video.setAttribute('muted', '');       // จำเป็นมากสำหรับ Android ใน LINE
+                video.srcObject = stream;
+                video.play();
+            } catch (err) { 
+                Swal.fire('Error', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาตสิทธิ์', 'error'); 
+            }
         }
-
         function takePhoto() {
             const v = document.getElementById('video');
             const c = document.createElement('canvas');
