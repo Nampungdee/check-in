@@ -29,7 +29,7 @@
 
     <div class="max-w-md mx-auto pt-4">
         <div id="step1">
-            <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
+      <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
     <h1 class="text-lg font-bold leading-tight">
         รายงานกิจกรรมขณะปฏิบัติงานนอกเวลาราชการ<br>
         นักศึกษาแพทย์ปีที่ 5 มหาวิทยาลัยนเรศวร<br>
@@ -74,9 +74,9 @@
                 </div>
             </div>
             
-        <button type="button" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm">
+       <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm opacity-30 pointer-events-none">
     📸 สแกนหน้าออกเวร<br>
-    <span class="text-xs text-red-600 font-medium">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
+    <span class="text-[10px] text-red-600 font-medium">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
 </button>
             
             <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg">
@@ -103,43 +103,11 @@
             addCase(true);
         };
 
-        function initSignature() {
-    const canvas = document.getElementById("signature-pad");
-    
-    // 1. ล็อกตัวแปรให้แม่นยำขึ้น
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)',
-        velocityFilterWeight: 0.7, // ช่วยให้เส้นลื่นแต่ไม่กระโดด
-        minWidth: 1.5,
-        maxWidth: 3.5
-    });
+     // --- วางทับแทนที่ก้อนเดิมทั้งหมด ตั้งแต่บรรทัด 103 เป็นต้นไปครับ ---
 
-    // 2. ล็อกหน้าจอไม่ให้ขยับเวลาเซ็น (สำคัญมาก)
-    sigPad.addEventListener("beginStroke", () => {
-        // หยุดการเลื่อนหน้าจอขณะลากนิ้ว
-        document.body.style.overflow = "hidden"; 
-    });
-
-    sigPad.addEventListener("endStroke", () => {
-        // กลับมาเลื่อนหน้าจอได้ปกติเมื่อยกนิ้ว
-        document.body.style.overflow = "auto";
-        sigImg = sigPad.toDataURL();
-        document.getElementById('signature-frozen-view').src = sigImg;
-        document.getElementById('signature-frozen-view').style.display = 'block';
-    });
-
-    // 3. กำหนดขนาดครั้งเดียวให้จบ (Fixed Ratio)
-    // การไม่ใส่ Resize Event จะทำให้ช่องเซ็นนิ่งกว่าเดิมครับ
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-}
-// ฟังก์ชันตรวจสอบ: ถ้าเซ็นแล้ว + ใส่ชื่ออาจารย์แล้ว -> ให้กดสแกนหน้าได้
 function checkNext() {
     const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
-    const hasSignature = sigImg !== ""; // เช็คว่ามีข้อมูลลายเซ็นในตัวแปรหรือยัง
+    const hasSignature = sigImg !== ""; 
     
     const camBtn = document.getElementById('cam-btn');
     if (hasStaffName && hasSignature) {
@@ -148,6 +116,46 @@ function checkNext() {
         camBtn.classList.add('opacity-30', 'pointer-events-none');
     }
 }
+
+function initSignature() {
+    const canvas = document.getElementById("signature-pad");
+    
+    // ล็อกตัวแปรให้แม่นยำและนิ่งขึ้น
+    sigPad = new SignaturePad(canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(0, 0, 0)',
+        velocityFilterWeight: 0.7,
+        minWidth: 1.5,
+        maxWidth: 3.5
+    });
+
+    // ล็อกหน้าจอไม่ให้ขยับเวลาเซ็น
+    sigPad.addEventListener("beginStroke", () => {
+        document.body.style.overflow = "hidden"; 
+    });
+
+    sigPad.addEventListener("endStroke", () => {
+        document.body.style.overflow = "auto";
+        sigImg = sigPad.toDataURL();
+        document.getElementById('signature-frozen-view').src = sigImg;
+        document.getElementById('signature-frozen-view').style.display = 'block';
+        
+        // เช็คเงื่อนไขปลดล็อกปุ่มสแกนหน้าทันที
+        checkNext(); 
+    });
+
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+}
+
+// ตรวจสอบชื่ออาจารย์ขณะพิมพ์
+document.addEventListener('input', function (e) {
+    if (e.target.id === 'staffName') {
+        checkNext();
+    }
+});
 
 // แก้ไขฟังก์ชัน initSignature เดิม (เพิ่มการเรียก checkNext)
 function initSignature() {
