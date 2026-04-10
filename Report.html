@@ -25,7 +25,7 @@
         <div class="mint-bg rounded-[30px] p-6 text-white text-center mb-6 shadow-lg">
             <h1 class="text-xl font-bold">ข้อมูลรายงานกิจกรรม</h1>
         </div>
-        <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
+        <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4"> 
             <label class="label-text">ชื่อ นสพ.</label>
             <input type="text" id="name" class="input-field mb-3" placeholder="พิมพ์ชื่อถ้าไม่ขึ้น">
             <label class="label-text">รหัสประจำตัวนิสิต</label>
@@ -64,42 +64,44 @@
         </div>
     </div>
 
-    <script>
-        // แก้ไข: ใส่ URL ของ Google Apps Script ของคุณหมอตรงนี้ได้เลยครับ
+   <script>
+        // แก้ไข: ใส่ URL ของ Google Apps Script ของคุณหมอตรงนี้ครับ
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyVn65W7RAnDkQ_l_Xw_3XmR66D-8rZq5L6m8X7-A/exec"; 
 
         let sigPad, sigImg = "";
 
         window.onload = function() {
-            // ระบบดึงข้อมูลจากเครื่อง
+            // 1. ดึงข้อมูล นสพ.
             document.getElementById('name').value = localStorage.getItem('savedName') || "";
             document.getElementById('studentId').value = localStorage.getItem('savedId') || "";
             document.getElementById('workDate').valueAsDate = new Date();
             
+            // 2. เตรียมระบบลายเซ็น (เริ่มทำงานทันที)
             initSignature();
             addCase(true);
         };
 
-       function initSignature() {
-    const canvas = document.getElementById("signature-pad");
-    // ตั้งค่า SignaturePad ทันที
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)',
-        onEnd: function() {
-            sigImg = sigPad.toDataURL();
-            document.getElementById('signature-frozen-view').src = sigImg;
-            document.getElementById('signature-frozen-view').style.display = 'block';
-            if (typeof checkNext === "function") checkNext(); 
+        function initSignature() {
+            const canvas = document.getElementById("signature-pad");
+            // ล้างค่าเก่าและสร้างใหม่ให้ชัวร์
+            if (sigPad) { sigPad.off(); }
+            
+            sigPad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: 'rgb(0, 0, 0)',
+                onEnd: () => {
+                    sigImg = sigPad.toDataURL();
+                    document.getElementById('signature-frozen-view').src = sigImg;
+                    document.getElementById('signature-frozen-view').style.display = 'block';
+                }
+            });
+            
+            // บังคับคำนวณขนาดช่องเซ็นให้ตรงกับนิ้วลาก
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
         }
-    });
-
-    // ส่วนสำคัญที่ทำให้เซ็นได้: การคำนวณขนาดหน้าจอ
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-}
 
         function addCase(isFirst = false) {
             const container = document.getElementById('caseContainer');
@@ -111,8 +113,20 @@
         }
 
         function clearSig() { sigPad.clear(); sigImg = ""; document.getElementById('signature-frozen-view').style.display = 'none'; }
-        function goToStep1() { document.getElementById('step2').style.display = 'none'; document.getElementById('step1').style.display = 'block'; }
-        function goToStep2() { document.getElementById('step1').style.display = 'none'; document.getElementById('step2').style.display = 'block'; window.scrollTo(0,0); }
+        
+        function goToStep1() { 
+            document.getElementById('step2').style.display = 'none'; 
+            document.getElementById('step1').style.display = 'block'; 
+        }
+
+        function goToStep2() { 
+            document.getElementById('step1').style.display = 'none'; 
+            document.getElementById('step2').style.display = 'block'; 
+            window.scrollTo(0,0);
+            // ทุกครั้งที่เปิดหน้า 2 ต้องรีเซ็ตขนาดช่องเซ็นให้พร้อมใช้งาน
+            initSignature();
+            if(sigImg) sigPad.fromDataURL(sigImg);
+        }
 
         function submitAll() {
             const cases = Array.from(document.querySelectorAll('.case-card')).map(c => ({
