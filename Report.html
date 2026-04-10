@@ -115,32 +115,37 @@
         }
 
         function initSignature() {
-            const canvas = document.getElementById("signature-pad");
-            sigPad = new SignaturePad(canvas, {
-                backgroundColor: 'rgba(255, 255, 255, 0)',
-                penColor: 'rgb(0, 0, 0)',
-                velocityFilterWeight: 0.7,
-                minWidth: 1.5,
-                maxWidth: 3.5
-            });
+    const canvas = document.getElementById("signature-pad");
+    
+    // ปรับจูนให้นุ่มนวลขึ้นแต่ไม่กินทรัพยากรเครื่อง (ลื่นกว่าเดิม)
+    sigPad = new SignaturePad(canvas, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(0, 0, 0)',
+        // ปรับค่าเหล่านี้เพื่อลดอาการกระตุก:
+        velocityFilterWeight: 0.5, // ลดค่าลงนิดหน่อยเพื่อให้ตอบสนองนิ้วเร็วขึ้น
+        minWidth: 1.0,            // ปรับเส้นให้ไม่หนาเทอะทะเกินไป
+        maxWidth: 2.5,
+        throttle: 16               // ล็อกความเร็วการวาดไว้ที่ 60fps (นิ่งและลื่น)
+    });
 
-            sigPad.addEventListener("beginStroke", () => {
-                document.body.style.overflow = "hidden"; 
-            });
+    sigPad.addEventListener("beginStroke", () => {
+        document.body.style.overflow = "hidden"; 
+    });
 
-            sigPad.addEventListener("endStroke", () => {
-                document.body.style.overflow = "auto";
-                sigImg = sigPad.toDataURL();
-                document.getElementById('signature-frozen-view').src = sigImg;
-                document.getElementById('signature-frozen-view').style.display = 'block';
-                checkNext(); 
-            });
+    sigPad.addEventListener("endStroke", () => {
+        document.body.style.overflow = "auto";
+        sigImg = sigPad.toDataURL('image/png', 1.0); // ใช้ความละเอียดสูงสุดแต่ไฟล์ไม่หนัก
+        document.getElementById('signature-frozen-view').src = sigImg;
+        document.getElementById('signature-frozen-view').style.display = 'block';
+        checkNext(); 
+    });
 
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-        }
+    // ล็อกขนาด Canvas ให้สัมพันธ์กับความละเอียดหน้าจอแบบพอดี
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+}
 
         document.addEventListener('input', function (e) {
             if (e.target.id === 'staffName') {
