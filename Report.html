@@ -148,41 +148,36 @@
             }
         });
 
-       async function openCamera() {
-    // 1. แสดงหน้าจอกล้อง
+      async function openCamera() {
+    // 1. เปิดหน้าจอกล้อง
     document.getElementById('video-container').style.display = 'flex';
-    
-    // 2. ตั้งค่าแบบเรียบง่ายที่สุดเพื่อให้ LINE ยอมปล่อยสิทธิ์
+    const video = document.getElementById('video');
+
+    // 2. ใช้คำสั่งขอสิทธิ์แบบพื้นฐานที่สุด เหมือนระบบเช็คอินเดิม
     const constraints = { 
-        video: { 
-            facingMode: "user" // บังคับกล้องหน้า
-        } 
+        video: true // ขอแค่กล้องหน้า/หลังอะไรก็ได้ก่อน เพื่อให้เครื่อง Pop-up ถามสิทธิ์
     };
 
     try {
-        // ขอสิทธิ์แบบตรงไปตรงมา
+        // เคลียร์สายเก่าถ้ามี
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+
+        // เริ่มขอสิทธิ์ (จังหวะนี้เครื่องควรจะขึ้น Pop-up แบบในรูปที่คุณหมอส่งมา)
         stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const v = document.getElementById('video');
-        v.srcObject = stream;
         
-        // บังคับเล่นวิดีโอ (ป้องกันจอดำใน LINE)
-        v.setAttribute("playsinline", true); // สำคัญมากสำหรับ Browser ในแอป
-        v.play();
-        
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true); // สำคัญมากสำหรับ LINE
+        video.play();
+
     } catch (err) {
-        console.error(err);
-        // ถ้ายังเข้าไม่ได้ ให้ลองแบบไม่ระบุกล้อง (บางรุ่นต้องการแบบนี้)
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(s => {
-                stream = s;
-                const v = document.getElementById('video');
-                v.srcObject = stream;
-                v.setAttribute("playsinline", true);
-                v.play();
-            })
-            .catch(e => {
-                Swal.fire('กล้องไม่ทำงาน', 'โปรดลองกดที่จุด 3 จุดมุมบน แล้วเลือก "เปิดด้วยเบราว์เซอร์อื่น"', 'warning');
-            });
+        console.error("Camera Error:", err);
+        Swal.fire({
+            title: 'เข้าถึงกล้องไม่ได้',
+            text: 'โปรดกด "อนุญาต" เมื่อมีหน้าต่างถามขอใช้กล้อง หรือเปิดด้วย Chrome ครับ',
+            icon: 'warning'
+        });
     }
 }
         function takePhoto() {
