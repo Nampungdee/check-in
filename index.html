@@ -1,76 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  body {
-    font-family: 'Kanit', sans-serif;
-    background: linear-gradient(to bottom right, #fff, #ffe6f0, #ffd6eb);
-    color: #333;
-  }
-
-  /* การ์ดพื้นหลัง */
-  .bg-slate-800 {
-    background: linear-gradient(135deg, #ff99c8, #ffb3d9) !important;
-  }
-  .bg-slate-100 {
-    background: #fff0f6 !important;
-  }
-
-  /* ปุ่มหลัก */
-  button {
-    transition: all 0.3s ease;
-    border-radius: 1rem !important;
-    font-weight: 600;
-  }
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(255, 182, 193, 0.3);
-  }
-
-  /* ปุ่มหลักสีชมพู */
-  .bg-slate-800 {
-    background: linear-gradient(135deg, #ff85a2, #ffb6c1) !important;
-    color: white !important;
-  }
-
-  /* ปุ่มถ่ายรูป */
-  .bg-green-500 {
-    background: linear-gradient(135deg, #ffb6c1, #ffcce0) !important;
-    color: #fff !important;
-  }
-
-  /* ปุ่มรอง */
-  .bg-gray-300 {
-    background: #ffe6f0 !important;
-    color: #555 !important;
-  }
-
-  /* input */
-  input, textarea {
-    border-radius: 1rem !important;
-    border: 2px solid #ffb6c1 !important;
-    background: #fff !important;
-  }
-
-  label {
-    color: #ff4d88 !important;
-    font-weight: 600;
-  }
-
-  /* ข้อความหัวข้อ */
-  h2, .text-5xl, .font-bold {
-    color: #ff4d88 !important;
-  }
-</style>
-
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>บันทึกการเข้างาน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(to bottom right, #fff, #ffe6f0, #ffd6eb);
+      color: #333;
+    }
+
+    /* การ์ดพื้นหลัง */
+    .bg-slate-800 {
+      background: linear-gradient(135deg, #ff99c8, #ffb3d9) !important;
+    }
+    .bg-slate-100 {
+      background: #fff0f6 !important;
+    }
+
+    /* ปุ่มหลัก */
+    button {
+      transition: all 0.3s ease;
+      border-radius: 1rem !important;
+      font-weight: 600;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(255, 182, 193, 0.3);
+    }
+
+    /* ปุ่มหลักสีชมพู */
+    .bg-slate-800 {
+      background: linear-gradient(135deg, #ff85a2, #ffb6c1) !important;
+      color: white !important;
+    }
+
+    /* ปุ่มถ่ายรูป */
+    .bg-green-500 {
+      background: linear-gradient(135deg, #ffb6c1, #ffcce0) !important;
+      color: #fff !important;
+    }
+
+    /* ปุ่มรอง */
+    .bg-gray-300 {
+      background: #ffe6f0 !important;
+      color: #555 !important;
+    }
+
+    /* input */
+    input, textarea {
+      border-radius: 1rem !important;
+      border: 2px solid #ffb6c1 !important;
+      background: #fff !important;
+    }
+
+    label {
+      color: #ff4d88 !important;
+      font-weight: 600;
+    }
+
+    /* ข้อความหัวข้อ */
+    h2, .text-5xl, .font-bold {
+      color: #ff4d88 !important;
+    }
+    
+    /* สไตล์ปุ่มเลือกสถานะงาน */
+    .job-tab {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .job-tab.active-in {
+      background-color: #22c55e !important;
+      color: white !important;
+      border-color: #22c55e !important;
+    }
+    .job-tab.active-out {
+      background-color: #ef4444 !important;
+      color: white !important;
+      border-color: #ef4444 !important;
+    }
+  </style>
 </head>
 
 <body class="bg-white h-screen">
@@ -78,17 +93,26 @@
     
     <div class="bg-slate-800 border rounded-lg text-white text-center mb-4 py-8 px-4">
       <div class="daytime">
-        <div id="date"></div>
-        <div class="text-5xl font-bold" id="time"></div>
+        <div id="date" class="text-white"></div>
+        <div class="text-5xl font-bold text-white" id="time"></div>
         <input type="date" id="todayInput" name="todayInput" class="hidden" />
         <input type="time" id="currentTime" name="currentTime" class="hidden" />
       </div>
     </div>
 
     <div id="step1">
+      <div class="flex justify-between space-x-4 mb-4">
+        <button type="button" id="tabCheckIn" onclick="selectJob('เข้างาน')" class="job-tab active-in w-1/2 py-3 text-center border-2 border-gray-300 rounded-xl font-bold text-gray-600 bg-white">
+          ลงเวลาเข้างาน
+        </button>
+        <button type="button" id="tabCheckOut" onclick="selectJob('ออกงาน')" class="job-tab w-1/2 py-3 text-center border-2 border-gray-300 rounded-xl font-bold text-gray-600 bg-white">
+          ลงเวลาออกงาน
+        </button>
+      </div>
+
       <div class="relative bg-slate-100 p-4 rounded-lg">
         <div id="loadingOverlay" class="hidden absolute top-0 left-0 w-full h-full bg-white/80 flex items-center justify-center z-[1000]">
-          <div class="text-center text-gray-800">ค้นหารายชื่อ..</div>
+          <div class="text-center text-gray-800 font-bold">ค้นหารายชื่อจากฐานข้อมูลสมาชิก..</div>
         </div>
         <div class="w-full p-2 space-y-6">
           <div class="relative">
@@ -113,10 +137,11 @@
       </div>
 
       <input type="hidden" id="jobInput" name="jobInput" value="เข้างาน" required />
+      
       <textarea class="w-full border border-gray-300 rounded-lg p-4 text-gray-700 mt-4" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)" id="noteInput"></textarea>
       
       <div class="bg-slate-800 text-white text-center rounded-lg my-4">
-        <button class="p-4 w-full" onclick="nextStep()">ถัดไป</button>
+        <button class="p-4 w-full text-white" onclick="nextStep()">ถัดไป</button>
       </div>
     </div>
 
@@ -147,14 +172,14 @@
     <div id="step3" class="hidden text-center">
       <div class="submit">
         <div class="w-full mb-4 rounded-lg bg-slate-800 text-white">
-          <button type="button" onclick="getLocation()" class="w-full p-4 rounded-lg animate-pulse">กดเพื่อยืนยันที่อยู่ของคุณ</button>
+          <button type="button" onclick="getLocation()" class="w-full p-4 rounded-lg animate-pulse text-white">กดเพื่อยืนยันที่อยู่ของคุณ</button>
         </div>
         <div id="locationInfo" class="bg-white p-4 rounded-lg shadow-sm max-w-sm mx-auto my-4">
           <div class="flex justify-between">
             <p id="latitude" class="text-gray-700 font-medium pb-2">Latitude: -</p>
             <p id="longitude" class="text-gray-700 font-medium pb-2">Longitude: -</p>
           </div>
-          <p id="fullAddress" class="h-18 overflow-hidden">สถานที่: กรุณากดปุ่มยืนยันที่อยู่ด้านบน</p>
+          <p id="fullAddress" class="h-18 overflow-hidden text-sm">สถานที่: กรุณากดปุ่มยืนยันที่อยู่ด้านบน</p>
         </div>
         <input type="hidden" id="latitudeInput" name="latitudeInput" />
         <input type="hidden" id="longitudeInput" name="longitudeInput" />
@@ -173,14 +198,31 @@
 
   <script src="Config.js"></script>
   <script>
-    const Latitude = 16.808200;  // พิกัดศูนย์กลางสำนักงาน/จุดตั้งต้น
+    const Latitude = 16.808200;  
     const Longitude = 100.264197;
-    const Range = 5000;          // ระยะรัศมีที่ยอมรับ (เมตร)
+    const Range = 5000;          
 
     window.onload = async function () {
-      document.getElementById("jobInput").value = "เข้างาน";
       await initializeLiff();
     };
+
+    function selectJob(status) {
+      document.getElementById("jobInput").value = status;
+      const checkInBtn = document.getElementById("tabCheckIn");
+      const checkOutBtn = document.getElementById("tabCheckOut");
+
+      if (status === 'เข้างาน') {
+        checkInBtn.classList.add("active-in", "text-white");
+        checkInBtn.classList.remove("text-gray-600", "bg-white");
+        checkOutBtn.classList.remove("active-out", "text-white");
+        checkOutBtn.classList.add("text-gray-600", "bg-white");
+      } else {
+        checkOutBtn.classList.add("active-out", "text-white");
+        checkOutBtn.classList.remove("text-gray-600", "bg-white");
+        checkInBtn.classList.remove("active-in", "text-white");
+        checkInBtn.classList.add("text-gray-600", "bg-white");
+      }
+    }
 
     async function initializeLiff() {
       try {
@@ -341,8 +383,8 @@
       return `${day}/${month}/${year}`;
     }
 
+    // ✨ ปรับปรุงจุดส่งข้อมูลสกัด Error และจัดฟอร์แมต JSON ให้รองรับการทำงานของ Apps Script
     function submitForm() {
-      // ดึงค่าเวลาและวันที่ล่าสุด ณ วินาทีที่กดปุ่มส่งข้อมูล เพื่อความแม่นยำในการตรวจสาย
       currentTime.value = getCurrentTimeInBangkok();
       todayInput.value = getFormattedDate();
 
@@ -357,7 +399,7 @@
       }
 
       Swal.fire({
-        title: "ยืนยันการบันทึกเวลา",
+        title: `ยืนยันการบันทึกเวลา ${jobInput.value}`,
         text: "คุณแน่ใจหรือไม่ที่จะทำการบันทึกเวลางานในขณะนี้?",
         icon: "question",
         showCancelButton: true,
@@ -374,7 +416,7 @@
             didOpen: () => { Swal.showLoading(); },
           });
 
-          let spt = preview.src.split("base64,")[1];
+          let spt = preview.src.split("base64,")[1] || "";
           let obj = {
             base64: spt,
             name: columnBData.value,
@@ -389,40 +431,46 @@
             user: userId.value,
           };
 
-          fetch(url, { method: "POST", body: JSON.stringify(obj) })
-            .then((response) => response.text())
-            .then((data) => {
-              Swal.close();
-              Swal.fire({
-                title: "สำเร็จ!",
-                text: "บันทึกข้อมูลการลงเวลาของคุณเข้าฐานข้อมูลเรียบร้อย!",
-                icon: "success",
-                confirmButtonText: "ปิด",
-              }).then(() => {
-                sendFlexMessage();
-              });
-            })
-            .catch((error) => {
-              Swal.close();
-              Swal.fire({
-                title: "เกิดข้อผิดพลาด!",
-                text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง",
-                icon: "error",
-                confirmButtonText: "OK",
-              }).then(() => {
-                document.getElementById("submitButton").disabled = false;
-              });
-              console.error(error);
+          // ✨ ปรับ Header การส่ง Fetch เพื่อป้องกัน CORS blocks ในบางสภาพแวดล้อมบนสมาร์ทโฟน
+          fetch(url, { 
+            method: "POST", 
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(obj) 
+          })
+          .then(() => {
+            Swal.close();
+            Swal.fire({
+              title: "สำเร็จ!",
+              text: `ส่งคำขอบันทึกข้อมูลการ ${jobInput.value} ไปยังระบบเรียบร้อย!`,
+              icon: "success",
+              confirmButtonText: "ปิด",
+            }).then(() => {
+              sendFlexMessage();
             });
+          })
+          .catch((error) => {
+            Swal.close();
+            Swal.fire({
+              title: "เกิดข้อผิดพลาด!",
+              text: "ไม่สามารถส่งพิกัดบันทึกได้ กรุณาตรวจสอบสถานะอินเทอร์เน็ต",
+              icon: "error",
+              confirmButtonText: "OK",
+            }).then(() => {
+              document.getElementById("submitButton").disabled = false;
+            });
+            console.error(error);
+          });
         }
       });
     }
 
     async function sendFlexMessage() {
-      let jobColor = "#0D9608FF";
+      let jobColor = jobInput.value === "เข้างาน" ? "#22c55e" : "#ef4444";
+      
       const flexMessage = {
         type: "flex",
-        altText: "จดบันทึกเวลางาน",
+        altText: `จดบันทึกเวลา ${jobInput.value}`,
         contents: {
           type: "bubble",
           direction: "ltr",
@@ -481,7 +529,7 @@
                     layout: "baseline",
                     contents: [
                       { type: "text", text: "เวลา", weight: "bold" },
-                      { type: "text", text: `${currentTime.value}`, weight: "bold", size: "xl", color: "#EF2F14FF", align: "end" },
+                      { type: "text", text: `${currentTime.value}`, weight: "bold", size: "xl", color: jobColor, align: "end" },
                     ],
                   },
                 ],
@@ -587,7 +635,6 @@
         submitButton.classList.add("bg-slate-800");
       }
       
-      // ดึงข้อมูลที่อยู่จาก OpenStreetMap (Reverse Geocoding)
       const reverseGeocodingUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
       fetch(reverseGeocodingUrl)
         .then((response) => response.json())
@@ -598,7 +645,7 @@
           document.getElementById("fullAddressInput").value = `พิกัด (${latitude}, ${longitude})`;
         });
 
-      // ✨ แก้ไขลิงก์สำหรับฝังตัวแผนที่ iFrame ให้สมบูรณ์และแสดงผลได้จริง
+      // ✨ แก้ไขโครงสร้างลิงก์แผนที่ของกูเกิลให้เรียกแผนที่ขึ้น iFrame สำเร็จ
       const mapsUrl = `https://maps.google.com/maps?q=${latitude},${longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
       document.getElementById("mapIframe").src = mapsUrl;
     }
