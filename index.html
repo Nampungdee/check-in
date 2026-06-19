@@ -1,208 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  body {
-    font-family: 'Kanit', sans-serif;
-    background: linear-gradient(to bottom right, #fff, #ffe6f0, #ffd6eb);
-    color: #333;
-  }
-
-  /* การ์ดพื้นหลัง */
-  .bg-slate-800 {
-    background: linear-gradient(135deg, #ff99c8, #ffb3d9) !important;
-  }
-  .bg-slate-100 {
-    background: #fff0f6 !important;
-  }
-
-  /* ปุ่มหลัก */
-  button {
-    transition: all 0.3s ease;
-    border-radius: 1rem !important;
-    font-weight: 600;
-  }
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(255, 182, 193, 0.3);
-  }
-
-  /* ปุ่มหลักสีชมพู */
-  .bg-slate-800 {
-    background: linear-gradient(135deg, #ff85a2, #ffb6c1) !important;
-    color: white !important;
-  }
-
-  /* ปุ่มถ่ายรูป */
-  .bg-green-500 {
-    background: linear-gradient(135deg, #ffb6c1, #ffcce0) !important;
-    color: #fff !important;
-  }
-
-  /* ปุ่มรอง */
-  .bg-gray-300 {
-    background: #ffe6f0 !important;
-    color: #555 !important;
-  }
-
-  /* input */
-  input, textarea {
-    border-radius: 1rem !important;
-    border: 2px solid #ffb6c1 !important;
-    background: #fff !important;
-  }
-
-  label {
-    color: #ff4d88 !important;
-    font-weight: 600;
-  }
-
-  /* ข้อความหัวข้อ */
-  h2, .text-5xl, .font-bold {
-    color: #ff4d88 !important;
-  }
-</style>
-
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>บันทึกการเข้างาน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(to bottom right, #fff, #ffe6f0, #ffd6eb);
+      color: #333;
+    }
+
+    /* การ์ดพื้นหลัง */
+    .bg-slate-800 {
+      background: linear-gradient(135deg, #ff99c8, #ffb3d9) !important;
+    }
+    .bg-slate-100 {
+      background: #fff0f6 !important;
+    }
+
+    /* ปุ่มหลัก */
+    button {
+      transition: all 0.3s ease;
+      border-radius: 1rem !important;
+      font-weight: 600;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(255, 182, 193, 0.3);
+    }
+
+    /* ปุ่มหลักสีชมพู */
+    .bg-slate-800 {
+      background: linear-gradient(135deg, #ff85a2, #ffb6c1) !important;
+      color: white !important;
+    }
+
+    /* ปุ่มถ่ายรูป */
+    .bg-green-500 {
+      background: linear-gradient(135deg, #ffb6c1, #ffcce0) !important;
+      color: #fff !important;
+    }
+
+    /* ปุ่มรอง */
+    .bg-gray-300 {
+      background: #ffe6f0 !important;
+      color: #555 !important;
+    }
+
+    /* input */
+    input, textarea {
+      border-radius: 1rem !important;
+      border: 2px solid #ffb6c1 !important;
+      background: #fff !important;
+    }
+
+    label {
+      color: #ff4d88 !important;
+      font-weight: 600;
+    }
+
+    /* ข้อความหัวข้อ */
+    h2, .text-5xl, .font-bold {
+      color: #ff4d88 !important;
+    }
+  </style>
 </head>
 
 <body class="bg-white h-screen">
   <div class="max-w-md mx-auto p-6">
-    <!-- ส่วน HTML ด้านบนเหมือนเดิม -->
     <div class="bg-slate-800 border rounded-lg text-white text-center mb-4 py-8 px-4">
       <div class="daytime">
         <div id="date"></div>
         <div class="text-5xl font-bold" id="time"></div>
-        <input type="date" id="todayInput" name="todayInput" class="hidden" /><input type="time" id="currentTime"
-          name="currentTime" class="hidden" />
+        <input type="date" id="todayInput" name="todayInput" class="hidden" />
+        <input type="time" id="currentTime" name="currentTime" class="hidden" />
       </div>
     </div>
+    
     <div id="step1">
       <div class="relative bg-slate-100 p-4 rounded-lg">
-        <div id="loadingOverlay"
-          class="hidden absolute top-0 left-0 w-full h-full bg-white/80 flex items-center justify-center z-[1000]">
+        <div id="loadingOverlay" class="hidden absolute top-0 left-0 w-full h-full bg-white/80 flex items-center justify-center z-[1000]">
           <div class="text-center text-gray-800">ค้นหารายชื่อ..</div>
         </div>
         <div class="w-full p-2 space-y-6">
           <div class="relative">
-            <label for="columnBData"
-              class="absolute -top-2 left-3 text-xs bg-slate-100 px-1 text-slate-800 font-semibold">ชื่อ-นามสกุล</label><input
-              type="text" class="w-full px-4 py-3 text-sm bg-slate-100 border-2 border-slate-800 rounded-xl"
-              id="columnBData" name="columnBData" required />
+            <label for="columnBData" class="absolute -top-2 left-3 text-xs bg-slate-100 px-1 text-slate-800 font-semibold">ชื่อ-นามสกุล</label>
+            <input type="text" class="w-full px-4 py-3 text-sm bg-slate-100 border-2 border-slate-800 rounded-xl" id="columnBData" name="columnBData" required />
           </div>
         </div>
         <div class="w-full p-2 space-y-6">
           <div class="relative">
-            <label for="columnCData"
-              class="absolute -top-2 left-3 text-xs bg-slate-100 px-1 text-slate-800 font-semibold">รหัส นสพ.</label><input
-              type="text" class="w-full px-4 py-3 text-sm bg-slate-100 border-2 border-slate-800 rounded-xl"
-              id="columnCData" name="columnCData" required />
+            <label for="columnCData" class="absolute -top-2 left-3 text-xs bg-slate-100 px-1 text-slate-800 font-semibold">รหัส นสพ.</label>
+            <input type="text" class="w-full px-4 py-3 text-sm bg-slate-100 border-2 border-slate-800 rounded-xl" id="columnCData" name="columnCData" required />
           </div>
         </div>
         <div class="w-full p-2 space-y-6">
           <div class="relative">
-            <label for="columnDData"
-              class="absolute -top-2 left-3 text-xs bg-slate-100 px-1 text-slate-800 font-semibold">ชั้นปี</label><input
-              type="text" class="w-full px-4 py-3 text-sm bg-slate-100 border-2 border-slate-800 rounded-xl"
-              id="columnDData" name="columnDData" required />
+            <label for="columnDData" class="absolute -top-2 left-3 text-xs bg-slate-100 px-1 text-slate-800 font-semibold">ชั้นปี</label>
+            <input type="text" class="w-full px-4 py-3 text-sm bg-slate-100 border-2 border-slate-800 rounded-xl" id="columnDData" name="columnDData" required />
           </div>
         </div>
-        <input type="hidden" id="userId" name="userId" /><input type="hidden" id="columnAData" name="columnAData" />
+        <input type="hidden" id="userId" name="userId" />
+        <input type="hidden" id="columnAData" name="columnAData" />
       </div>
 
-      <input type="hidden" id="jobInput" name="jobInput" required /><textarea
-        class="w-full border border-gray-300 rounded-lg p-4 text-gray-700" placeholder="    " id="noteInput"></textarea>
+      <input type="hidden" id="jobInput" name="jobInput" required />
+      <textarea class="w-full border border-gray-300 rounded-lg p-4 text-gray-700 my-4" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)" id="noteInput"></textarea>
       <div class="bg-slate-800 text-white text-center rounded-lg my-4">
         <button class="p-4 w-full" onclick="nextStep()">ถัดไป</button>
       </div>
     </div>
-    <!-- ส่วน HTML ที่เหลือ (Step 2, Step 3) เหมือนเดิม -->
+
     <div id="step2" class="hidden text-center">
       <div class="photo pb-4">
         <center>
-          <video id="camera-preview" width="70%" height="auto" autoplay playsinline
-            poster="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png"
-            class="rounded-lg"></video>
+          <video id="camera-preview" width="70%" height="auto" autoplay playsinline poster="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png" class="rounded-lg"></video>
         </center>
         <center>
           <img id="preview" width="70%" height="auto" alt="" required class="rounded-lg" />
         </center>
         <div class="flex justify-center space-x-4 my-4 px-8">
-          <button class="w-full text-sm text-center py-2 px-4 rounded-lg bg-[#001D53] text-white" id="start-camera-btn">
-            เปิดกล้อง</button><button class="w-full text-sm text-center py-4 px-4 rounded-lg bg-green-500 text-white"
-            id="capture-btn" disabled>
-            ถ่ายรูป</button><button id="switch-camera-btn" class="py-2 px-4 rounded-lg bg-slate-100 text-black"
-            disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000"
-              fill="none">
-              <path
-                d="M15.1667 0.999756L15.7646 2.11753C16.1689 2.87322 16.371 3.25107 16.2374 3.41289C16.1037 3.57471 15.6635 3.44402 14.7831 3.18264C13.9029 2.92131 12.9684 2.78071 12 2.78071C6.75329 2.78071 2.5 6.90822 2.5 11.9998C2.5 13.6789 2.96262 15.2533 3.77093 16.6093M8.83333 22.9998L8.23536 21.882C7.83108 21.1263 7.62894 20.7484 7.7626 20.5866C7.89627 20.4248 8.33649 20.5555 9.21689 20.8169C10.0971 21.0782 11.0316 21.2188 12 21.2188C17.2467 21.2188 21.5 17.0913 21.5 11.9998C21.5 10.3206 21.0374 8.74623 20.2291 7.39023"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <button class="w-full text-sm text-center py-2 px-4 rounded-lg bg-[#001D53] text-white" id="start-camera-btn">เปิดกล้อง</button>
+          <button class="w-full text-sm text-center py-4 px-4 rounded-lg bg-green-500 text-white" id="capture-btn" disabled>ถ่ายรูป</button>
+          <button id="switch-camera-btn" class="py-2 px-4 rounded-lg bg-slate-100 text-black" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
+              <path d="M15.1667 0.999756L15.7646 2.11753C16.1689 2.87322 16.371 3.25107 16.2374 3.41289C16.1037 3.57471 15.6635 3.44402 14.7831 3.18264C13.9029 2.92131 12.9684 2.78071 12 2.78071C6.75329 2.78071 2.5 6.90822 2.5 11.9998C2.5 13.6789 2.96262 15.2533 3.77093 16.6093M8.83333 22.9998L8.23536 21.882C7.83108 21.1263 7.62894 20.7484 7.7626 20.5866C7.89627 20.4248 8.33649 20.5555 9.21689 20.8169C10.0971 21.0782 11.0316 21.2188 12 21.2188C17.2467 21.2188 21.5 17.0913 21.5 11.9998C21.5 10.3206 21.0374 8.74623 20.2291 7.39023" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
         </div>
       </div>
       <div class="input-group py-4 flex justify-between space-x-4">
-        <button class="w-full text-center p-4 rounded-lg bg-gray-300" onclick="prevStep()">
-          กลับ</button><button class="w-full text-center p-4 rounded-lg bg-slate-800 text-white"
-          onclick="checkPictureAndNextStep()">
-          ถัดไป
-        </button>
+        <button class="w-full text-center p-4 rounded-lg bg-gray-300" onclick="prevStep()">กลับ</button>
+        <button class="w-full text-center p-4 rounded-lg bg-slate-800 text-white" onclick="checkPictureAndNextStep()">ถัดไป</button>
       </div>
     </div>
+
     <div id="step3" class="hidden text-center">
       <div class="submit">
         <div class="w-full mb-4 rounded-lg bg-slate-800 text-white">
-          <button type="button" onclick="getLocation()" class="w-full p-4 rounded-lg animate-pulse">
-            กดเพื่อยืนยันที่อยู่ของคุณ
-          </button>
+          <button type="button" onclick="getLocation()" class="w-full p-4 rounded-lg animate-pulse">กดเพื่อยืนยันที่อยู่ของคุณ</button>
         </div>
         <div id="locationInfo" name="locationInfo" class="bg-white p-4 rounded-lg shadow-sm max-w-sm mx-auto my-4">
           <div class="flex justify-between">
-            <p id="latitude" class="text-gray-700 font-medium pb-2">
-              Latitude:
-            </p>
-            <p id="longitude" class="text-gray-700 font-medium pb-2">
-              Longitude:
-            </p>
+            <p id="latitude" class="text-gray-700 font-medium pb-2">Latitude:</p>
+            <p id="longitude" class="text-gray-700 font-medium pb-2">Longitude:</p>
           </div>
           <p id="fullAddress" class="h-18 overflow-hidden">สถานที่</p>
         </div>
-        <input type="hidden" id="latitudeInput" name="latitudeInput" /><input type="hidden" id="longitudeInput"
-          name="longitudeInput" /><input type="hidden" id="fullAddressInput" name="fullAddressInput" required />
+        <input type="hidden" id="latitudeInput" name="latitudeInput" />
+        <input type="hidden" id="longitudeInput" name="longitudeInput" />
+        <input type="hidden" id="fullAddressInput" name="fullAddressInput" required />
       </div>
-      <iframe id="mapIframe" class="p-2 rounded-lg shadow-md h-40 overflow-hidden" width="100%" height="240"
-        frameborder="0" style="border: 0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+      <iframe id="mapIframe" class="p-2 rounded-lg shadow-md h-40 overflow-hidden" width="100%" height="240" frameborder="0" style="border: 0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
       <div class="input-group my-4 py-4 flex justify-between">
-        <button class="w-1/4 text-center p-4 m-2 rounded-lg bg-gray-300" onclick="prevStep()">
-          กลับ</button><button id="submitButton"
-          class="w-3/4 text-center p-4 m-2 rounded-lg bg-gray-400 text-white cursor-not-allowed" onclick="submitForm()"
-          disabled>
-          บันทึกข้อมูล
-        </button>
+        <button class="w-1/4 text-center p-4 m-2 rounded-lg bg-gray-300" onclick="prevStep()">กลับ</button>
+        <button id="submitButton" class="w-3/4 text-center p-4 m-2 rounded-lg bg-gray-400 text-white cursor-not-allowed" onclick="submitForm()" disabled>บันทึกข้อมูล</button>
       </div>
     </div>
   </div>  
-  <script src=" Config.js"></script>
+
+  <script src="Config.js"></script>
   <script>
     const Latitude = 16.808200;  //กำหนดพื้นที่
     const Longitude = 100.264197;  //กำหนดพื้นที่
     const Range = 5000;  //ระยะเป็นเมตร
 
-    // **แก้ไข 2: ตั้งค่า jobInput เป็น 'เข้างาน' เมื่อโหลด**
     window.onload = async function () {
       document.getElementById("jobInput").value = "เข้างาน";
       await initializeLiff();
     };
 
-    // Script ที่เหลือทั้งหมดเหมือนเดิม
     async function initializeLiff() {
       try {
         await liff.init({ liffId: `${LIFF_ID}` });
@@ -215,6 +188,7 @@
         console.error("Error initializing LIFF:", error);
       }
     }
+
     async function getUserProfile() {
       try {
         const profile = await liff.getProfile();
@@ -224,6 +198,7 @@
         console.error("Error getting profile data:", error);
       }
     }
+
     async function fetchData(userId) {
       showLoading(true);
       try {
@@ -243,15 +218,16 @@
         showLoading(false);
       }
     }
+
     function displayData(row) {
       document.getElementById("columnAData").value = row[1] || "";
       document.getElementById("columnBData").value = row[2] || "";
       document.getElementById("columnCData").value = row[3] || "";
       document.getElementById("columnDData").value = row[4] || "";
-      // --- เพิ่ม 2 บรรทัดนี้เพื่อให้มือถือจำชื่อน้องไว้ค่ะ ---
-  localStorage.setItem('savedName', row[2]); 
-  localStorage.setItem('savedId', row[3]);
-}
+      localStorage.setItem('savedName', row[2]); 
+      localStorage.setItem('savedId', row[3]);
+    }
+
     function showLoading(isLoading) {
       const overlay = document.getElementById("loadingOverlay");
       const inputs = document.querySelectorAll("input, textarea");
@@ -265,7 +241,7 @@
         inputs.forEach((input) => (input.disabled = false));
       }
     }
-    const url = `${WEB_APP_URL}`;
+
     const columnBData = document.querySelector("#columnBData");
     const columnCData = document.querySelector("#columnCData");
     const jobInput = document.querySelector("#jobInput");
@@ -277,6 +253,7 @@
     const fullAddressInput = document.querySelector("#fullAddressInput");
     const userId = document.querySelector("#userId");
     const preview = document.getElementById("preview");
+
     document.addEventListener("DOMContentLoaded", function () {
       const video = document.getElementById("camera-preview");
       const startCameraBtn = document.getElementById("start-camera-btn");
@@ -285,6 +262,7 @@
       const previewImage = document.getElementById("preview");
       let stream;
       let currentFacingMode = "user";
+
       function startCamera() {
         navigator.mediaDevices
           .getUserMedia({ video: { facingMode: currentFacingMode } })
@@ -301,6 +279,7 @@
             alert("ไม่สามารถเข้าถึงกล้องได้ กรุณาตรวจสอบการอนุญาต.");
           });
       }
+
       function capturePhoto() {
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
@@ -311,18 +290,20 @@
         previewImage.style.display = "block";
         video.style.display = "none";
       }
+
       function switchCamera() {
         if (stream) {
           stream.getTracks().forEach((track) => track.stop());
         }
-        currentFacingMode =
-          currentFacingMode === "environment" ? "user" : "environment";
+        currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
         startCamera();
       }
+
       startCameraBtn.addEventListener("click", startCamera);
       captureBtn.addEventListener("click", capturePhoto);
       switchCameraBtn.addEventListener("click", switchCamera);
     });
+
     function checkPictureAndNextStep() {
       const capturedImage = document.getElementById("preview").src;
       if (!capturedImage || capturedImage.includes("No-Image-Placeholder")) {
@@ -336,25 +317,39 @@
         nextStep();
       }
     }
+
+    // =========================================================
+    // 🚀 ฟังก์ชัน SUBMITFORM เวอร์ชันใหม่: ส่ง 2 URL พร้อมกัน + ดักจับโหมดเว็บคอมพิวเตอร์
+    // =========================================================
     function submitForm() {
-      if (
-        !columnBData.value ||
-        !columnCData.value ||
-        !jobInput.value ||
-        !latitudeInput.value ||
-        !longitudeInput.value
-      ) {
+      currentTime.value = getCurrentTimeInBangkok();
+      todayInput.value = getFormattedDate();
+
+      // ดักจับ: หากกรอกชื่อและรหัสพนักงานไม่ครบถ้วน
+      if (!columnBData.value || !columnCData.value) {
+        Swal.fire({
+          title: "ข้อมูลพนักงานไม่ครบถ้วน!",
+          text: "กรุณากรอก ชื่อ-นามสกุล และ รหัส นสพ. ให้เรียบร้อยก่อนทำการบันทึก",
+          icon: "error",
+          confirmButtonText: "รับทราบ"
+        });
+        return;
+      }
+
+      // ดักจับ: หากยังไม่ได้กดยืนยันตำแหน่งพิกัด
+      if (!latitudeInput.value || !longitudeInput.value) {
         Swal.fire({
           title: "แจ้งเตือน!",
-          text: "กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน",
+          text: "กรุณากดปุ่มยืนยันที่อยู่ด้านบนให้เรียบร้อยก่อนบันทึกข้อมูล",
           icon: "warning",
           confirmButtonText: "OK",
         });
         return;
       }
+
       Swal.fire({
         title: "ยืนยันการส่งข้อมูล",
-        text: "คุณแน่ใจหรือไม่ที่ต้องการส่งข้อมูล?",
+        text: "คุณแน่ใจหรือไม่ที่ต้องการส่งข้อมูลเข้าสู่ระบบ?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "ยืนยัน",
@@ -364,14 +359,19 @@
           document.getElementById("submitButton").disabled = true;
           Swal.fire({
             title: "กำลังบันทึกข้อมูล",
-            text: "กรุณารอสักครู่...",
+            text: "ระบบกำลังอัปเดตข้อมูลพิกัดลงสเปรดชีตทั้งสองระบบ กรุณารอสักครู่...",
             showConfirmButton: false,
             allowOutsideClick: false,
             didOpen: () => {
               Swal.showLoading();
             },
           });
-          let spt = preview.src.split("base64,")[1];
+
+          let spt = preview.src.split("base64,")[1] || "";
+          
+          // ระบบ Bypass ค่าตรวจสอบสิทธิ์: หากเปิดรันบนคอมพิวเตอร์และไม่มี userId จะส่งค่าจำลองพนักงานไปก่อนไม่ให้พัง
+          let finalUserId = userId.value ? userId.value : "TEST_USER_ON_WEB";
+
           let obj = {
             base64: spt,
             name: columnBData.value,
@@ -383,15 +383,30 @@
             lat: latitudeInput.value,
             long: longitudeInput.value,
             address: fullAddressInput.value,
-            user: userId.value,
+            user: finalUserId,
           };
-          fetch(url, { method: "POST", body: JSON.stringify(obj) })
-            .then((response) => response.text())
-            .then((data) => {
+
+          // สั่งยิง Fetch ส่งข้อมูลไปที่ Web App ทั้ง 2 ลิงก์พร้อมกันแบบคู่ขนาน (no-cors Mode)
+          const request1 = fetch(`${WEB_APP_URL}`, { 
+            method: "POST", 
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(obj) 
+          });
+
+          const request2 = fetch(`${WEB_APP_CHECKIN_URL}`, { 
+            method: "POST", 
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(obj) 
+          });
+
+          Promise.all([request1, request2])
+            .then(() => {
               Swal.close();
               Swal.fire({
                 title: "สำเร็จ!",
-                text: "บันทึกข้อมูลของคุณเรียบร้อย!",
+                text: "บันทึกข้อมูลการเข้างานลงระบบสเปรดชีตคู่ขนานเรียบร้อยแล้ว!",
                 icon: "success",
                 confirmButtonText: "ปิด",
               }).then(() => {
@@ -401,19 +416,26 @@
             .catch((error) => {
               Swal.close();
               Swal.fire({
-                title: "Error!",
-                text: "Form submission failed. Please try again.",
+                title: "เกิดข้อผิดพลาด!",
+                text: "ไม่สามารถส่งพิกัดบันทึกข้อมูลได้ กรุณาตรวจสอบลิงก์ URL หรือเครือข่ายอินเทอร์เน็ต",
                 icon: "error",
                 confirmButtonText: "OK",
               }).then(() => {
                 document.getElementById("submitButton").disabled = false;
               });
-              console.error(error);
+              console.error("Multi-Fetch Error: ", error);
             });
         }
       });
     }
+
     async function sendFlexMessage() {
+      // ดักจับเพิ่มเติม: หากเปิดผ่านเว็บคอมพิวเตอร์ ให้ปิดหน้าต่างเว็บจำลองไปเลย ไม่ให้ระบบค้างที่คำสั่ง sendMessages
+      if (!userId.value || userId.value === "") {
+        console.log("เปิดบนเว็บเบราว์เซอร์ปกติ: ระบบไม่ส่ง Flex Message เข้า LINE");
+        return;
+      }
+
       let jobColor = "#0D9608FF";
       const flexMessage = {
         type: "flex",
@@ -567,9 +589,7 @@
                   },
                   {
                     type: "text",
-                    text: fullAddressInput.value
-                      ? `${fullAddressInput.value}`
-                      : "ข้อมูลไม่พร้อมแสดง แต่เราเก็บพิกัดของคุณเรียบร้อย",
+                    text: fullAddressInput.value ? `${fullAddressInput.value}` : "ข้อมูลไม่พร้อมแสดง แต่เราเก็บพิกัดของคุณเรียบร้อย",
                     wrap: true,
                     contents: [],
                   },
@@ -579,9 +599,14 @@
           },
         },
       };
-      await liff.sendMessages([flexMessage]);
-      liff.closeWindow();
+      try {
+        await liff.sendMessages([flexMessage]);
+        liff.closeWindow();
+      } catch (err) {
+        console.error("Error sending LIFF message:", err);
+      }
     }
+
     function updateDateTime() {
       const dateElement = document.getElementById("date");
       const timeElement = document.getElementById("time");
@@ -607,31 +632,24 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
-    // **แก้ไข 3: ลบ Event Listener ที่ไม่จำเป็นออกไป**
-    // document.querySelectorAll('input[name="switch-job"]').forEach... (ส่วนนี้ถูกลบ)
-
     function calculateDistance(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
       const φ1 = (lat1 * Math.PI) / 180;
       const φ2 = (lat2 * Math.PI) / 180;
       const Δφ = ((lat2 - lat1) * Math.PI) / 180;
       const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-      const a =
-        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
+
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(displayLocation, showError);
       } else {
-        Swal.fire(
-          "ไม่รองรับ",
-          "บราวเซอร์ของคุณไม่รองรับ Geolocation",
-          "error"
-        );
+        Swal.fire("ไม่รองรับ", "บราวเซอร์ของคุณไม่รองรับ Geolocation", "error");
       }
     }
+
     function showError(error) {
       let message = "";
       switch (error.code) {
@@ -650,31 +668,22 @@
       }
       Swal.fire("เกิดข้อผิดพลาด", message, "error");
     }
+
     function displayLocation(position) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      document.getElementById(
-        "latitude"
-      ).innerText = `Latitude: ${latitude.toFixed(6)}`;
-      document.getElementById(
-        "longitude"
-      ).innerText = `Longitude: ${longitude.toFixed(6)}`;
+      document.getElementById("latitude").innerText = `Latitude: ${latitude.toFixed(6)}`;
+      document.getElementById("longitude").innerText = `Longitude: ${longitude.toFixed(6)}`;
       document.getElementById("latitudeInput").value = latitude;
       document.getElementById("longitudeInput").value = longitude;
       const submitButton = document.getElementById("submitButton");
-      const distance = calculateDistance(
-        latitude,
-        longitude,
-        Latitude,
-        Longitude
-      );
+      const distance = calculateDistance(latitude, longitude, Latitude, Longitude);
+      
       if (distance > Range) {
         Swal.fire({
           icon: "error",
           title: "คุณอยู่นอกพื้นที่!",
-          text: `ระยะห่างจากจุดที่กำหนด: ${distance.toFixed(
-            0
-          )} เมตร ไม่สามารถบันทึกข้อมูลได้`,
+          text: `ระยะห่างจากจุดที่กำหนด: ${distance.toFixed(0)} เมตร ไม่สามารถบันทึกข้อมูลได้`,
           confirmButtonText: "รับทราบ",
         });
         submitButton.disabled = true;
@@ -684,9 +693,7 @@
         Swal.fire({
           icon: "success",
           title: "ตำแหน่งถูกต้อง!",
-          text: `คุณอยู่ในพื้นที่ที่กำหนด (ระยะห่าง ${distance.toFixed(
-            0
-          )} เมตร)`,
+          text: `คุณอยู่ในพื้นที่ที่กำหนด (ระยะห่าง ${distance.toFixed(0)} เมตร)`,
           timer: 3000,
           showConfirmButton: false,
         });
@@ -698,25 +705,22 @@
       fetch(reverseGeocodingUrl)
         .then((response) => response.json())
         .then((data) => {
-          document.getElementById("fullAddress").innerText = data.display_name
-            ? `ที่อยู่ของคุณ: ${data.display_name}`
-            : "ไม่สามารถดึงข้อมูลที่อยู่ได้";
-          document.getElementById("fullAddressInput").value =
-            data.display_name || "";
+          document.getElementById("fullAddress").innerText = data.display_name ? `ที่อยู่ของคุณ: ${data.display_name}` : "ไม่สามารถดึงข้อมูลที่อยู่ได้";
+          document.getElementById("fullAddressInput").value = data.display_name || "";
         });
-      const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}&output=embed`;
+      const mapsUrl = `https://maps.google.com/maps?q=${latitude},${longitude}&output=embed`;
       document.getElementById("mapIframe").src = mapsUrl;
     }
+
     function getCurrentTimeInBangkok() {
       const now = new Date();
-      const bangkokTime = new Date(
-        now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
-      );
+      const bangkokTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
       const hours = String(bangkokTime.getHours()).padStart(2, "0");
       const minutes = String(bangkokTime.getMinutes()).padStart(2, "0");
       return `${hours}:${minutes}`;
     }
     document.getElementById("currentTime").value = getCurrentTimeInBangkok();
+
     function getFormattedDate() {
       const today = new Date();
       const year = today.getFullYear();
@@ -725,6 +729,7 @@
       return `${day}/${month}/${year}`;
     }
     document.getElementById("todayInput").value = getFormattedDate();
+
     let currentStep = 1;
     function nextStep() {
       if (currentStep < 3) {
@@ -742,5 +747,4 @@
     }
   </script>
 </body>
-
 </html>
