@@ -1,4 +1,4 @@
-// ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App (สำหรับระบบสมาชิกรวม)
+// ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App (สำหรับระบบสมาชิกรวม member)
 const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbwR5z1QhMd3588Hn5pW7kF55p0pUp4AG2ZmbzVDHTOhNBOFjjPuWdKIny8G8_rT0rodmA/exec';
 
 // URL สำหรับระบบฝั่ง CheckIn เดิม (เก็บสำรองไว้)
