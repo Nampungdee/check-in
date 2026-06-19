@@ -33,23 +33,17 @@
             </div>
             
             <div class="bg-white rounded-[25px] p-5 shadow-sm mb-4">
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                        <label class="label-text">ชื่อ นสพ.</label>
-                        <input type="text" id="name" class="input-field" placeholder="พิมพ์ชื่อ">
-                    </div>
-                    <div>
-                        <label class="label-text">นามสกุล</label>
-                        <input type="text" id="lastname" class="input-field" placeholder="พิมพ์นามสกุล">
-                    </div>
+                <div class="mb-3">
+                    <label class="label-text">ชื่อ นสพ.</label>
+                    <input type="text" id="name" class="input-field" placeholder="พิมพ์ชื่อถ้าไม่ขึ้น">
                 </div>
 
                 <div class="mb-3">
                     <label class="label-text">รหัสประจำตัวนิสิต</label>
-                    <input type="text" id="studentId" class="input-field" placeholder="พิมพ์รหัสประจำตัว">
+                    <input type="text" id="studentId" class="input-field" placeholder="พิมพ์รหัสถ้าไม่ขึ้น">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="grid grid-cols-2 gap-5 mb-4">
                     <div>
                         <label class="label-text">วันที่</label>
                         <input type="date" id="workDate" class="input-field">
@@ -267,12 +261,10 @@
         window.onload = function() {
             try {
                 const nameField = document.getElementById('name');
-                const lastnameField = document.getElementById('lastname');
                 const idField = document.getElementById('studentId');
                 const dateField = document.getElementById('workDate');
                 
                 if (nameField) nameField.value = localStorage.getItem('savedName') || localStorage.getItem('name') || "";
-                if (lastnameField) lastnameField.value = localStorage.getItem('savedLastName') || localStorage.getItem('lastname') || "";
                 if (idField) idField.value = localStorage.getItem('savedId') || localStorage.getItem('studentId') || localStorage.getItem('student_id') || "";
                 if (dateField) dateField.valueAsDate = new Date();
                 
@@ -289,17 +281,15 @@
                 note: c.querySelector('.n-in').value
             }));
 
-            const firstName = document.getElementById('name').value.trim();
-            const lastName = document.getElementById('lastname').value.trim();
+            const fullName = document.getElementById('name').value.trim();
             const studentIdValue = document.getElementById('studentId').value.trim();
 
             if(!sigImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาให้อาจารย์เซ็นชื่อก่อนครับ', 'warning');
             if(!faceImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากดเปิดกล้องและถ่ายรูปเพื่อยืนยันก่อนครับ', 'warning');
-            if(!firstName || !lastName) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อและนามสกุล นสพ. ด้วยครับ', 'warning');
+            if(!fullName) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อ นสพ. ด้วยครับ', 'warning');
             if(!studentIdValue) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกรหัสนิสิตด้วยครับ', 'warning');
 
-            localStorage.setItem('savedName', firstName);
-            localStorage.setItem('savedLastName', lastName);
+            localStorage.setItem('savedName', fullName);
             localStorage.setItem('savedId', studentIdValue);
 
             Swal.fire({ title: 'กำลังบันทึกข้อมูล CheckOut...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
@@ -309,7 +299,7 @@
                 mode: "no-cors",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({
-                    studentName: firstName + " " + lastName,
+                    studentName: fullName,
                     studentId: studentIdValue,
                     workDate: document.getElementById('workDate').value,
                     shiftTime: document.getElementById('shiftTime').value,
