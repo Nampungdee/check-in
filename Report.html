@@ -76,7 +76,7 @@
                 </div>
                 <div class="sig-container">
                     <canvas id="signature-pad"></canvas>
-                    <img id="signature-frozen-view">
+                    <img id="signature-frozen-view" alt="Signature View">
                 </div>
                 <div class="mt-6">
                     <label class="label-text">ชื่ออาจารย์ (ตัวบรรจง)</label>
@@ -85,14 +85,14 @@
             </div>
             
             <div id="camera-section" class="bg-white rounded-[25px] p-5 shadow-sm mb-6 border-2 border-emerald-50 text-center">
-                <center class="pb-4">
+                <div class="pb-4 flex justify-center">
                     <video id="camera-preview" width="70%" height="auto" autoplay playsinline
                            poster="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png"
                            class="rounded-lg border-2 border-gray-100 mb-2"></video>
-                </center>
-                <center>
-                    <img id="preview" width="70%" height="auto" class="rounded-lg hidden">
-                </center>
+                </div>
+                <div class="flex justify-center">
+                    <img id="preview" width="70%" height="auto" class="rounded-lg hidden" alt="Face Preview">
+                </div>
 
                 <div class="flex justify-center space-x-3 my-2">
                     <button class="w-full text-sm text-center py-3 px-4 rounded-xl bg-[#001D53] text-white font-bold opacity-30 pointer-events-none"
@@ -116,6 +116,10 @@
         let stream = null;
         let faceImg = "";
         let sigImg = "";
+
+        // หากรันใน Google Apps Script แบบฝั่ง Server โดยตรงและไม่มีไฟล์ Config.js 
+        // ให้ยกเลิกคอมเมนต์บรรทัดด้านล่างแล้วใส่ URL ของเว็บแอปคุณได้เลยครับ
+        // const WEB_APP_URL = "URL_WEB_APP_ของเดิมของคุณ";
 
         function addCase(isFirst = false) {
             const container = document.getElementById('caseContainer');
@@ -215,7 +219,7 @@
                 console.error("Camera Error:", err);
                 Swal.fire({
                     title: 'กล้องไม่ทำงาน',
-                    text: 'โปรดตรวจสอบสิทธิ์การเข้าถึงกล้อง หรือคัดลอกลิงก์ไปเปิดบนเบราว์เซอร์ระบบเปิด เช่น Chrome/Safari โดยตรงครับ',
+                    text: 'โปรดตรวจสอบสิทธิ์การเข้าถึงกล้อง หรือคัดลอกลิงก์ไปเปิดบนเบราว์เซอร์หลัก เช่น Chrome/Safari โดยตรงครับ',
                     icon: 'warning'
                 });
             }
@@ -294,6 +298,7 @@
 
             Swal.fire({ title: 'กำลังบันทึกข้อมูล CheckOut...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             
+            // ส่ง Object ข้อมูลไปยัง Web App ของ Google Apps Script ตัวใหม่ที่แก้ไขแล้ว
             fetch(WEB_APP_URL, {
                 method: "POST",
                 mode: "no-cors",
@@ -312,7 +317,7 @@
             .then(() => {
                 Swal.fire({
                     title: 'สำเร็จ!',
-                    text: 'บันทึกข้อมูล CheckOut และเคสคนไข้เรียบร้อยแล้วครับ',
+                    text: 'บันทึกข้อมูล CheckOut และเคสคนไข้แยกโฟลเดอร์เรียบร้อยแล้วครับ',
                     icon: 'success'
                 }).then(() => {
                     location.reload();
