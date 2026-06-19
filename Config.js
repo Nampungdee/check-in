@@ -2,7 +2,7 @@
 const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbwR5z1QhMd3588Hn5pW7kF55p0pUp4AG2ZmbzVDHTOhNBOFjjPuWdKIny8G8_rT0rodmA/exec';
 
 // URL สำหรับระบบฝั่ง CheckIn เดิม (เก็บสำรองไว้)
-const WEB_APP_CHECKIN_URL = 'https://script.google.com/macros/s/AKfycbz--5zYc0agdFi6d5x1bqDmoTo2pm_MNLF4-hmA8Ng8Qr4G7XUBvKKwetU8S38FB03v/exec';
+const WEB_APP_CHECKIN_URL = 'https://script.google.com/macros/s/AKfycbzTZ-M5Q6Ok8hJaZzrwKFGBoXrA_dMLilo6V5NFCUOQGcJbqoS2vpQSVuLXLPC6wk1s/exec';
 
 // *** ตัวแปรหลักที่ Report.html เรียกใช้ ***
 // นำ URL Web App ตัวใหม่ที่ได้จากการ Deploy โค้ด Apps Script (ชุดที่มี DataCheckOut) มาวางตรงนี้
