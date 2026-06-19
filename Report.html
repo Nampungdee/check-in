@@ -38,17 +38,21 @@
                 <label class="label-text">รหัสประจำตัวนิสิต</label>
                 <input type="text" id="studentId" class="input-field mb-3" placeholder="พิมพ์รหัสถ้าไม่ขึ้น">
                 
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
-                    <<div>
-    <label class="label-text">เวลา</label>
-    <select id="shiftTime" class="input-field font-bold">
-        <option value="08.00 - 16.00">1. 08.00 - 16.00</option>
-        <option value="16.00 - 00.00">2. 16.00 - 00.00</option>
-        <option value="00.00 - 08.00">3. 00.00 - 08.00</option>
-    </select>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+    <div>
+        <label class="label-text">วันที่</label>
+        <input type="date" id="workDate" class="input-field">
+    </div>
+    
+    <div>
+        <label class="label-text">เวลา</label>
+        <select id="shiftTime" class="input-field font-bold">
+            <option value="08.00 - 16.00">1. 08.00 - 16.00</option>
+            <option value="16.00 - 00.00">2. 16.00 - 00.00</option>
+            <option value="00.00 - 08.00">3. 00.00 - 08.00</option>
+        </select>
+    </div>
 </div>
-                </div>
             </div>
 
             <div id="caseContainer"></div>
