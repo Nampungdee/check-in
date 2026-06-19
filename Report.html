@@ -40,7 +40,14 @@
                 
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="label-text">วันที่</label><input type="date" id="workDate" class="input-field"></div>
-                    <div><label class="label-text">เวลา</label><input type="text" id="shiftTime" class="input-field" placeholder="08:00-16:00"></div>
+                    <<div>
+    <label class="label-text">เวลา</label>
+    <select id="shiftTime" class="input-field font-bold">
+        <option value="08.00 - 16.00">1. 08.00 - 16.00</option>
+        <option value="16.00 - 00.00">2. 16.00 - 00.00</option>
+        <option value="00.00 - 08.00">3. 00.00 - 08.00</option>
+    </select>
+</div>
                 </div>
             </div>
 
