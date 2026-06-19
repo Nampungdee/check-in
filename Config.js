@@ -2,7 +2,7 @@
 const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbwR5z1QhMd3588Hn5pW7kF55p0pUp4AG2ZmbzVDHTOhNBOFjjPuWdKIny8G8_rT0rodmA/exec';
 
 // *** วางลิงก์ที่คุณเพิ่งก๊อปปี้มาจากหน้า Google Apps Script (ตอนกด Deploy) ตรงนี้นะคะ ***
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaONWU5G5smMlmnNIpN5q82z_N_iQOvYHkvQcKZUqov0G-6BwCDZRoBTa02mrdp-A3/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxgVG-Kw4J7lCaSl58zptyX0phXMQ3UvIduY7Z3cAS0MHE5B0vkIB6Ri_giUPWglEgW/exec';
 
 // LIFF_ID
 const LIFF_ID = '2007747842-OGeyrGkv';      // LIFF ID Checkin
