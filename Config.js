@@ -1,5 +1,5 @@
 // ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App
-const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbx-HmnQwlqYY-O-PgnUoTrmqG_Z-x7KQUq_aDzeQzDnghCYh12Jw7vnZGuJVMN40NMm/exec';
+const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbzF18wFW4GkJAEFX27MSj_And_NPQhJ0t5V0H-UWcrN0zzP0Ffng1A6A6De-AAMjKyZ/exec';
 
 // *** วางลิงก์ที่คุณเพิ่งก๊อปปี้มาจากหน้า Google Apps Script (ตอนกด Deploy) ตรงนี้นะคะ ***
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzF18wFW4GkJAEFX27MSj_And_NPQhJ0t5V0H-UWcrN0zzP0Ffng1A6A6De-AAMjKyZ/exec';
