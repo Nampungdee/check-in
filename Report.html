@@ -225,36 +225,51 @@
         }
 
         function submitAll() {
-            // ดึงข้อมูลเคสและสลักโครงสร้างคีย์ให้ตรงกับสคริปต์หลังบ้าน (Code.gs)
-            const cases = Array.from(document.querySelectorAll('.case-card')).map((c, index) => ({
-                patient: c.querySelector('.p-in').value,
-                diag: c.querySelector('.d-in').value,
+            // ดึงข้อมูลรายการเคสจากหน้าฟอร์ม
+            const cases = Array.from(document.querySelectorAll('.case-card')).map((c) => ({
+                patient: c.querySelector('.p-in').value || "-",
+                diag: c.querySelector('.d-in').value || "-",
                 note: c.querySelector('.n-in').value
             }));
 
             if(!sigImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาให้อาจารย์เซ็นชื่อด้วยครับ', 'warning');
             if(!faceImg) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาสแกนหน้าออกเวรด้วยครับ', 'warning');
-            if(!document.getElementById('staffName').value) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาพิมพ์ชื่ออาจารย์ด้วยครับ', 'warning');
+            if(!document.getElementById('name').value) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อ นสพ. ด้วยครับ', 'warning');
+            if(!document.getElementById('studentId').value) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกรหัสนิสิตด้วยครับ', 'warning');
 
-            Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล CheckOut...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             
-            // ปรับโครงสร้างข้อมูลที่ส่งออกไป (Payload) ให้ตรงกับตัวรับใน Code.gs ทั้งหมด
+            // ส่งข้อมูล Payload ไปยัง Google Apps Script โดยปรับคีย์ให้อ่านข้อมูลตรงกัน
             fetch(WEB_APP_URL, {
                 method: "POST",
                 mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain"
+                },
                 body: JSON.stringify({
-                    action: "submitReport",
-                    name: document.getElementById('name').value,
-                    id: document.getElementById('studentId').value,
-                    date: document.getElementById('workDate').value,
-                    shift: document.getElementById('shiftTime').value,
+                    studentName: document.getElementById('name').value,
+                    studentId: document.getElementById('studentId').value,
+                    workDate: document.getElementById('workDate').value,
+                    shiftTime: document.getElementById('shiftTime').value,
+                    base64: faceImg, // รูปภาพใบหน้าแปลงเข้ารหัสส่งไปเปิดสิทธิ์ในสคริปต์
                     signature: sigImg,
-                    faceImage: faceImg,
                     staffName: document.getElementById('staffName').value,
                     cases: cases
                 })
-            }).then(() => Swal.fire('สำเร็จ!', 'บันทึกเรียบร้อย กลับบ้านได้เลยครับคุณหมอ', 'success').then(() => location.reload()));
+            })
+            .then(() => {
+                Swal.fire({
+                    title: 'สำเร็จ!',
+                    text: 'บันทึกข้อมูล CheckOut เรียบร้อยแล้วครับ',
+                    icon: 'success'
+                }).then(() => {
+                    location.reload();
+                });
+            })
+            .catch((err) => {
+                console.error(err);
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์สคริปต์ได้', 'error');
+            });
         }
-    </script>
-</body>
+    </body>
 </html>
