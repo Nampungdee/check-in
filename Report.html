@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -18,14 +18,9 @@
         .sig-container { position: relative; width: 100%; height: 250px; background: #fff; border: 3px solid #99f6e4; border-radius: 25px; overflow: hidden; touch-action: none; }
         #signature-pad { width: 100%; height: 100%; touch-action: none; }
         #signature-frozen-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; display: none; z-index: 20; object-fit: contain; pointer-events: none; }
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="p-4 pb-10">
-    <div id="video-container">
-        <video id="video" width="90%" autoplay playsinline style="border-radius: 25px; border: 4px solid white;"></video>
-        <button onclick="takePhoto()" class="mt-5 bg-white text-gray-800 px-10 py-4 rounded-2xl font-bold text-lg shadow-xl">📸 ถ่ายรูปยืนยันตัวตน</button>
-    </div>
 
     <div class="max-w-md mx-auto pt-4">
         <div id="step1">
@@ -74,13 +69,23 @@
                 </div>
             </div>
             
-            <button id="cam-btn" onclick="openCamera()" class="w-full bg-white text-[#0d9488] border-4 border-[#0d9488] p-5 rounded-[30px] font-bold text-lg mb-6 shadow-sm opacity-30 pointer-events-none">
-                📸 สแกนหน้าออกเวร<br>
-                <span class="text-[10px] text-red-600 font-medium">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</span>
-            </button>
-            
-            <div id="preview-photo" class="hidden mb-6 mx-auto w-40 h-40 rounded-full border-4 border-white overflow-hidden shadow-lg">
-                <img id="face-img" src="" class="w-full h-full object-cover">
+            <div id="camera-section" class="bg-white rounded-[25px] p-5 shadow-sm mb-6 border-2 border-emerald-50 text-center">
+                <center class="pb-4">
+                    <video id="camera-preview" width="70%" height="auto" autoplay playsinline
+                           poster="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png"
+                           class="rounded-lg border-2 border-gray-100 mb-2"></video>
+                </center>
+                <center>
+                    <img id="preview" width="70%" height="auto" class="rounded-lg hidden">
+                </center>
+
+                <div class="flex justify-center space-x-3 my-2">
+                    <button class="w-full text-sm text-center py-3 px-4 rounded-xl bg-[#001D53] text-white font-bold opacity-30 pointer-events-none"
+                            id="start-camera-btn" onclick="openCamera()">เปิดกล้อง</button>
+                    <button class="w-full text-sm text-center py-3 px-4 rounded-xl bg-green-500 text-white font-bold hidden" 
+                            id="capture-btn" onclick="takePhoto()">ถ่ายรูป</button>
+                </div>
+                <p class="text-center text-[10px] text-red-600 font-medium mt-3">** ให้เปลี่ยนชุด จากชุดสครับเป็นชุดนศพ. 🥼 ให้เรียบร้อย</p>
             </div>
 
             <div class="flex gap-3">
@@ -98,77 +103,96 @@
             document.getElementById('name').value = localStorage.getItem('savedName') || localStorage.getItem('name') || "";
             document.getElementById('studentId').value = localStorage.getItem('savedId') || localStorage.getItem('studentId') || "";
             document.getElementById('workDate').valueAsDate = new Date();
-            initSignature();
-            addCase(true);
+            addCase(true); 
         };
 
         function checkNext() {
             const hasStaffName = document.getElementById('staffName').value.trim().length >= 2;
             const hasSignature = sigImg !== ""; 
-            const camBtn = document.getElementById('cam-btn');
+            const startCamBtn = document.getElementById('start-camera-btn');
             
             if (hasStaffName && hasSignature) {
-                camBtn.classList.remove('opacity-30', 'pointer-events-none');
+                startCamBtn.classList.remove('opacity-30', 'pointer-events-none');
             } else {
-                camBtn.classList.add('opacity-30', 'pointer-events-none');
+                startCamBtn.classList.add('opacity-30', 'pointer-events-none');
             }
         }
 
         function initSignature() {
-    const canvas = document.getElementById("signature-pad");
-    
-    // ปรับจูนให้นุ่มนวลขึ้นแต่ไม่กินทรัพยากรเครื่อง (ลื่นกว่าเดิม)
-    sigPad = new SignaturePad(canvas, {
-        backgroundColor: 'rgba(255, 255, 255, 0)',
-        penColor: 'rgb(0, 0, 0)',
-        // ปรับค่าเหล่านี้เพื่อลดอาการกระตุก:
-        velocityFilterWeight: 0.5, // ลดค่าลงนิดหน่อยเพื่อให้ตอบสนองนิ้วเร็วขึ้น
-        minWidth: 1.0,            // ปรับเส้นให้ไม่หนาเทอะทะเกินไป
-        maxWidth: 2.5,
-        throttle: 16               // ล็อกความเร็วการวาดไว้ที่ 60fps (นิ่งและลื่น)
-    });
+            const canvas = document.getElementById("signature-pad");
+            sigPad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: 'rgb(0, 0, 0)',
+                velocityFilterWeight: 0.5,
+                minWidth: 1.0,
+                maxWidth: 2.5,
+                throttle: 16
+            });
 
-    sigPad.addEventListener("beginStroke", () => {
-        document.body.style.overflow = "hidden"; 
-    });
+            sigPad.addEventListener("beginStroke", () => { document.body.style.overflow = "hidden"; });
+            sigPad.addEventListener("endStroke", () => {
+                document.body.style.overflow = "auto";
+                sigImg = sigPad.toDataURL();
+                document.getElementById('signature-frozen-view').src = sigImg;
+                document.getElementById('signature-frozen-view').style.display = 'block';
+                checkNext(); 
+            });
 
-    sigPad.addEventListener("endStroke", () => {
-        document.body.style.overflow = "auto";
-        sigImg = sigPad.toDataURL('image/png', 1.0); // ใช้ความละเอียดสูงสุดแต่ไฟล์ไม่หนัก
-        document.getElementById('signature-frozen-view').src = sigImg;
-        document.getElementById('signature-frozen-view').style.display = 'block';
-        checkNext(); 
-    });
-
-    // ล็อกขนาด Canvas ให้สัมพันธ์กับความละเอียดหน้าจอแบบพอดี
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-}
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
 
         document.addEventListener('input', function (e) {
-            if (e.target.id === 'staffName') {
-                checkNext();
-            }
+            if (e.target.id === 'staffName') { checkNext(); }
         });
 
         async function openCamera() {
-            document.getElementById('video-container').style.display = 'flex';
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('video').srcObject = stream;
+            const video = document.getElementById('camera-preview');
+            const startBtn = document.getElementById('start-camera-btn');
+            const captureBtn = document.getElementById('capture-btn');
+            const previewImg = document.getElementById('preview');
+
+            try {
+                if (stream) { stream.getTracks().forEach(track => track.stop()); }
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                video.srcObject = stream;
+                video.classList.remove('hidden');
+                previewImg.classList.add('hidden');
+                startBtn.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+                
+                video.setAttribute("playsinline", true);
+                video.play();
+
+            } catch (err) {
+                console.error("Camera Error:", err);
+                Swal.fire({
+                    title: 'กล้องไม่ทำงาน',
+                    text: 'โปรดก๊อปปี้ลิงก์ฟอร์มไปเปิดใช้งานบน Google Chrome โดยตรง หรือตรวจสอบสิทธิ์กล้องครับ',
+                    icon: 'warning'
+                });
+            }
         }
 
         function takePhoto() {
-            const v = document.getElementById('video');
+            const v = document.getElementById('camera-preview');
+            const previewImg = document.getElementById('preview');
+            const captureBtn = document.getElementById('capture-btn');
+            
             const c = document.createElement('canvas');
             c.width = v.videoWidth; c.height = v.videoHeight;
             c.getContext('2d').drawImage(v, 0, 0);
             faceImg = c.toDataURL('image/jpeg', 0.6);
-            document.getElementById('face-img').src = faceImg;
-            document.getElementById('preview-photo').classList.remove('hidden');
+            
+            previewImg.src = faceImg;
+            previewImg.classList.remove('hidden');
+            v.classList.add('hidden');
+            captureBtn.innerText = "ถ่ายใหม่";
+            
             if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
         }
 
         function addCase(isFirst = false) {
@@ -196,12 +220,13 @@
             document.getElementById('step1').style.display = 'none'; 
             document.getElementById('step2').style.display = 'block'; 
             window.scrollTo(0,0);
-            initSignature();
+            initSignature(); 
             if(sigImg) sigPad.fromDataURL(sigImg);
         }
 
         function submitAll() {
-            const cases = Array.from(document.querySelectorAll('.case-card')).map(c => ({
+            // ดึงข้อมูลเคสและสลักโครงสร้างคีย์ให้ตรงกับสคริปต์หลังบ้าน (Code.gs)
+            const cases = Array.from(document.querySelectorAll('.case-card')).map((c, index) => ({
                 patient: c.querySelector('.p-in').value,
                 diag: c.querySelector('.d-in').value,
                 note: c.querySelector('.n-in').value
@@ -212,6 +237,8 @@
             if(!document.getElementById('staffName').value) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณาพิมพ์ชื่ออาจารย์ด้วยครับ', 'warning');
 
             Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
+            
+            // ปรับโครงสร้างข้อมูลที่ส่งออกไป (Payload) ให้ตรงกับตัวรับใน Code.gs ทั้งหมด
             fetch(WEB_APP_URL, {
                 method: "POST",
                 mode: "no-cors",
