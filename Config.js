@@ -2,7 +2,7 @@
 const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycby2cit0L6OOwnlWYwOu9Er--MDwEHqcJUnKUBdfNrHpIwfNepA8r01x11p9Q8NGwwQ1/exec';
 
 // URL สำหรับระบบฝั่ง CheckIn เดิม (เก็บสำรองไว้)
-const WEB_APP_CHECKIN_URL = 'https://script.google.com/macros/s/AKfycbyA0eaXWPyynDEBTnsZcDFrJgv1l3ZWT5Tk9WBOSG19gxKJp82oZSV3AOYsU7Z7A7OY/exec';
+const WEB_APP_CHECKIN_URL = 'https://script.google.com/macros/s/AKfycbwVJ_ufylTzGiE_kyEjRO0LlBg7hrDFNxbRbYJWmVQkwF_xafq2grX4TRsfamlzEc5S/exec';
 
 // LIFF_ID ต่างๆ
 const LIFF_ID = '2007747842-OGeyrGkv';       // LIFF ID Checkin
