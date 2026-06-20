@@ -192,10 +192,31 @@
   </div>  
   <script src=" Config.js"></script>
   <script>
-    const Latitude = 16.808200;  //กำหนดพื้นที่
-    const Longitude = 100.264197;  //กำหนดพื้นที่
-    const Range = 50;  //ระยะเป็นเมตร
+    // 1. ประกาศตัวแปร Global ไว้ด้านบนสุด
+  let currentStep = 1; 
+  const Latitude = 16.808200;
+  const Longitude = 100.264197;
+  const Range = 50;
 
+  // ตรวจสอบให้แน่ใจว่า WEB_APP_URL ถูกประกาศที่นี่หากไม่ใช้ไฟล์ภายนอก
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwVJ_ufylTzGiE_kyEjRO0LlBg7hrDFNxbRbYJWmVQkwF_xafq2grX4TRsfamlzEc5S/exec';
+
+  // 2. ฟังก์ชัน nextStep และ prevStep
+  function nextStep() {
+      if (currentStep < 3) {
+          document.getElementById(`step${currentStep}`).style.display = "none";
+          currentStep++;
+          document.getElementById(`step${currentStep}`).style.display = "block";
+      }
+  }
+
+  function prevStep() {
+      if (currentStep > 1) {
+          document.getElementById(`step${currentStep}`).style.display = "none";
+          currentStep--;
+          document.getElementById(`step${currentStep}`).style.display = "block";
+      }
+  }
     // **แก้ไข 2: ตั้งค่า jobInput เป็น 'เข้างาน' เมื่อโหลด**
     window.onload = async function () {
       document.getElementById("jobInput").value = "เข้างาน";
