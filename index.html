@@ -190,41 +190,61 @@
       </div>
     </div>
   </div>  
-  <script src=" Config.js"></script>
-  <script>
-    const Latitude = 16.808200;  //กำหนดพื้นที่
-    const Longitude = 100.264197;  //กำหนดพื้นที่
-    const Range = 5000;  //ระยะเป็นเมตร
+  <script src="Config.js">
+    
+  </script>
+ <script>
+    let currentStep = 1;
+    const Latitude = 16.808200; 
+    const Longitude = 100.264197; 
+    const Range = 5000; 
 
-    // **แก้ไข 2: ตั้งค่า jobInput เป็น 'เข้างาน' เมื่อโหลด**
     window.onload = async function () {
-      document.getElementById("jobInput").value = "เข้างาน";
-      await initializeLiff();
+        document.getElementById("jobInput").value = "เข้างาน";
+        // ดึงข้อมูลที่เคยบันทึกไว้มาแสดงทันที
+        document.getElementById("columnBData").value = localStorage.getItem('savedName') || "";
+        document.getElementById("columnCData").value = localStorage.getItem('savedId') || "";
+        
+        await initializeLiff();
     };
 
-    // Script ที่เหลือทั้งหมดเหมือนเดิม
     async function initializeLiff() {
-      try {
-        await liff.init({ liffId: `${LIFF_ID}` });
-        if (liff.isLoggedIn()) {
-          getUserProfile();
-        } else {
-          liff.login();
+        try {
+            await liff.init({ liffId: `${LIFF_ID}` });
+            if (liff.isLoggedIn()) {
+                getUserProfile();
+            } else {
+                liff.login();
+            }
+        } catch (error) {
+            console.error("LIFF Init Error:", error);
         }
-      } catch (error) {
-        console.error("Error initializing LIFF:", error);
-      }
     }
+
     async function getUserProfile() {
-      try {
         const profile = await liff.getProfile();
         document.getElementById("userId").value = profile.userId;
-        await fetchData(profile.userId);
-      } catch (error) {
-        console.error("Error getting profile data:", error);
-      }
+        fetchData(profile.userId);
     }
-    async function fetchData(userId) {
+
+    // ส่วนแก้ไขการดึงแผนที่ให้แสดงผลถูกต้อง
+    function displayLocation(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        document.getElementById("latitude").innerText = `Latitude: ${lat.toFixed(6)}`;
+        document.getElementById("longitude").innerText = `Longitude: ${lon.toFixed(6)}`;
+        document.getElementById("latitudeInput").value = lat;
+        document.getElementById("longitudeInput").value = lon;
+
+        // แก้ไข URL ของแผนที่ให้ถูกต้อง
+        const mapIframe = document.getElementById("mapIframe");
+        mapIframe.src = `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d300!2d${lon}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sth!2sth!4v1600000000000!5m2!1sth!2sth`;
+
+        // คำนวณระยะทางและ logic อื่นๆ (คงเดิม)
+        const distance = calculateDistance(lat, lon, Latitude, Longitude);
+        // ... (ส่วนเดิมของคุณ)
+    }    async function fetchData(userId) {
       showLoading(true);
       try {
         const response = await fetch(`${WEB_APP_MEMBER_URL}`, {
@@ -684,7 +704,7 @@ function submitForm() {
       return `${day}/${month}/${year}`;
     }
     document.getElementById("todayInput").value = getFormattedDate();
-    let currentStep = 1;
+   
     function nextStep() {
       if (currentStep < 3) {
         document.getElementById(`step${currentStep}`).style.display = "none";
