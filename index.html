@@ -338,6 +338,9 @@
     }
    // ส่วนนี้แก้ไขในฟังก์ชัน submitForm ของไฟล์ HTML ของคุณ
 function submitForm() {
+    // แสดงสถานะกำลังบันทึก
+    Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
     let spt = preview.src.split("base64,")[1];
     let obj = {
         base64: spt,
@@ -345,26 +348,28 @@ function submitForm() {
         role: document.getElementById("columnCData").value,
         job: document.getElementById("jobInput").value,
         note: document.getElementById("noteInput").value,
-        today: document.getElementById("todayInput").value,
         time: document.getElementById("currentTime").value,
         lat: document.getElementById("latitudeInput").value,
         long: document.getElementById("longitudeInput").value,
         address: document.getElementById("fullAddressInput").value,
-        user: document.getElementById("userId").value,
-        status: "ปกติ", // เพิ่มตัวแปรให้ครบ
-        minutes: 0      // เพิ่มตัวแปรให้ครบ
+        user: document.getElementById("userId").value
     };
 
+    // เปลี่ยนจาก no-cors เป็นปกติ (Google Apps Script รองรับ CORS หากจัดการถูกต้อง)
     fetch(url, { 
         method: "POST", 
-        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" }, // ส่งเป็น text/plain เพื่อเลี่ยง Preflight CORS
         body: JSON.stringify(obj) 
     })
-    .then(() => {
-        Swal.fire("สำเร็จ!", "บันทึกข้อมูลเรียบร้อย", "success");
+    .then(res => res.text())
+    .then(data => {
+        Swal.fire("สำเร็จ!", "บันทึกข้อมูลเรียบร้อย", "success").then(() => {
+            sendFlexMessage(); // เรียกฟังก์ชันส่งข้อความ LINE หลังบันทึกเสร็จ
+        });
     })
     .catch((err) => {
-        Swal.fire("ผิดพลาด", "ไม่สามารถส่งข้อมูลได้", "error");
+        console.error(err);
+        Swal.fire("ผิดพลาด", "ไม่สามารถส่งข้อมูลได้: " + err, "error");
     });
 }
     async function sendFlexMessage() {
