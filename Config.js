@@ -1,5 +1,5 @@
 // ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App (สำหรับระบบสมาชิกรวม member)
-const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbwR5z1QhMd3588Hn5pW7kF55p0pUp4AG2ZmbzVDHTOhNBOFjjPuWdKIny8G8_rT0rodmA/exec';
+const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbwjwZLa70_do_Yp7kitnBILz9fMzfY840_C6tlA0rJo0NaFJv6N6l18dwT8-OWVo1XvVw/exec';
 
 // URL สำหรับระบบฝั่ง CheckIn เดิม (เก็บสำรองไว้)
 const WEB_APP_CHECKIN_URL = 'https://script.google.com/macros/s/AKfycbzIL3vruU9TNX182ETTYKar9AzdIeA5sdl0KyoyO-Sdo-TbxaYlUpET64I4kd6M75OT/exec';
