@@ -143,76 +143,62 @@
     }
 
     // ฟังก์ชันสร้างตารางแสดงข้อมูล
-    function buildTable(tableId, values) {
-      const table = document.getElementById(tableId);
-      table.innerHTML = '';
+   // [นำส่วนนี้ไปแทนที่ฟังก์ชัน buildTable เดิมในไฟล์ HTML]
 
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const reversedValues = values.slice().reverse(); // แสดงข้อมูลล่าสุดก่อน
+function buildTable(tableId, values) {
+  const table = document.getElementById(tableId);
+  table.innerHTML = '';
 
-      reversedValues.slice(startIndex, endIndex).forEach(row => {
-        const tr = document.createElement('tr');
-        tr.classList.add('border-b', 'hover:bg-slate-100');
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const reversedValues = values.slice().reverse();
 
-        // ดึงค่าจากคอลัมน์ 4, 12 และ 13
-        const col4 = row[4];
-        const col12 = row[12];
-        const col13 = row[13];
+  reversedValues.slice(startIndex, endIndex).forEach(row => {
+    const tr = document.createElement('tr');
+    tr.classList.add('border-b', 'hover:bg-slate-100');
 
-        // รวมข้อความในรูปแบบ "row4(row12 row13 น.)" หากมีข้อมูลในคอลัมน์ 12 และ 13
-        let statusText = col4;
-        if (col12 && col12.trim() !== "" && col13 && col13.toString().trim() !== "") {
-          statusText = `${col4}(${col12} ${col13} น.)`;
-        } else if (col12 && col12.trim() !== "") {
-          statusText = `${col4}(${col12})`;
-        } else if (col13 && col13.toString().trim() !== "") {
-          statusText = `${col4}(${col13} น.)`;
-        }
+    // คอลัมน์ข้อมูล
+    const col4 = row[4];   // เข้างาน/ออกงาน
+    const col12 = row[12]; // ตรงเวลา/สาย
+    const col13 = row[13]; // จำนวนนาที
 
-        // กำหนดสีสำหรับสถานะ "เข้างาน" (สีเขียว) และ "ออกงาน" (สีแดง)
-        let statusColor = 'gray';
-        let dotColor = 'gray';
-        if (col4 === 'เข้างาน') {
-          statusColor = 'green';
-          dotColor = 'green';
-        } else if (col4 === 'ออกงาน') {
-          statusColor = 'red';
-          dotColor = 'red';
-        }
+    // สร้างสีสถานะแบบ Hard-coded Class เพื่อให้ Tailwind แสดงผล
+    let statusClass = 'border-gray-500 text-gray-500';
+    let dotClass = 'bg-gray-500';
 
-        // สร้างเซลล์สำหรับสถานะ โดยจัดข้อความให้อยู่กลาง
-        let td = document.createElement('td');
-        td.classList.add('py-2', 'px-4', 'whitespace-nowrap');
-        td.innerHTML = `
-          <span class="flex items-center justify-center border border-${statusColor}-500 rounded-full px-2 py-1 text-${statusColor}-500">
-            <span class="h-2 w-2 bg-${dotColor}-500 rounded-lg mr-2"></span>
-            ${statusText}
-          </span>
-        `;
-        tr.appendChild(td);
-
-        // เซลล์สำหรับหมายเหตุ (จัดข้อความให้อยู่กลาง)
-        td = document.createElement('td');
-        td.classList.add('py-2', 'px-4', 'whitespace-nowrap', 'text-center');
-        td.textContent = row[5];
-        tr.appendChild(td);
-
-        // เซลล์สำหรับวันที่และเวลา (จัดข้อความให้อยู่กลาง)
-        td = document.createElement('td');
-        td.classList.add('py-2', 'px-4', 'whitespace-nowrap', 'text-center');
-        td.innerHTML = `
-          <div>${formatDate(row[6])}</div>
-          <div class="text-gray-500 text-sm">${formatTime(row[7])}</div>
-        `;
-        tr.appendChild(td);
-
-        table.appendChild(tr);
-      });
-
-      updatePaginationControls(values.length);
+    if (col4 === 'เข้างาน') {
+      statusClass = 'border-green-500 text-green-500';
+      dotClass = 'bg-green-500';
+    } else if (col4 === 'ออกงาน') {
+      statusClass = 'border-red-500 text-red-500';
+      dotClass = 'bg-red-500';
     }
 
+    // เตรียมข้อความสถานะ
+    let displayStatus = col4;
+    if (col12) {
+      displayStatus = `${col4} (${col12}${col13 ? ' ' + col13 + ' นาที' : ''})`;
+    }
+
+    // สร้างเซลล์ HTML
+    tr.innerHTML = `
+      <td class="py-2 px-4 whitespace-nowrap">
+        <span class="flex items-center justify-center border rounded-full px-2 py-1 ${statusClass}">
+          <span class="h-2 w-2 rounded-lg mr-2 ${dotClass}"></span>
+          ${displayStatus}
+        </span>
+      </td>
+      <td class="py-2 px-4 whitespace-nowrap text-center">${row[5] || ''}</td>
+      <td class="py-2 px-4 whitespace-nowrap text-center">
+        <div>${formatDate(row[6])}</div>
+        <div class="text-gray-500 text-sm">${formatTime(row[7])}</div>
+      </td>
+    `;
+    table.appendChild(tr);
+  });
+
+  updatePaginationControls(values.length);
+}
     // ฟังก์ชันอัปเดตตัวควบคุมการแบ่งหน้า
     function updatePaginationControls(totalItems) {
       const totalPages = Math.ceil(totalItems / itemsPerPage);
