@@ -98,23 +98,25 @@
     }
 
     // ฟังก์ชันดึงข้อมูลจาก Web App
-    async function fetchData(userId) {
-      document.getElementById('loading').style.display = 'block';
-      try {
-        const response = await fetch(`${WEB_APP_URL}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        console.log('Fetched data:', data);
-        const filteredData = data.filter(row => row[11] === userId); // กรองข้อมูลตาม userId (คอลัมน์ที่ 11)
-
-        // แสดงชื่อและรหัสพนักงานจากแถวสุดท้าย
-        if (filteredData.length > 0) {
-          const lastRow = filteredData[filteredData.length - 1];
-          document.getElementById('name-info').textContent = lastRow[2];
-          document.getElementById('employee-id-info').textContent = lastRow[3];
-        }
+async function fetchData(userId) {
+  document.getElementById('loading').style.display = 'block';
+  try {
+    // ต้องแน่ใจว่า WEB_APP_URL คือ URL ใหม่ที่ได้จากขั้นตอน Deploy ด้านบน
+    const response = await fetch(`${WEB_APP_URL}`, {
+      method: 'GET',
+      mode: 'cors' // การตั้งค่านี้ช่วยให้คุยกับ CORS ได้ง่ายขึ้น
+    });
+    
+    if (!response.ok) throw new Error('Network response not ok');
+    
+    const data = await response.json();
+    // ... ดำเนินการแสดงผลข้อมูลต่อ
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
 
         buildTable('data-table', filteredData);
       } catch (error) {
