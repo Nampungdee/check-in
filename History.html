@@ -98,33 +98,39 @@
     }
 
     // ฟังก์ชันดึงข้อมูลจาก Web App
-    async function fetchData(userId) {
-      document.getElementById('loading').style.display = 'block';
-      try {
-        const response = await fetch(`${WEB_APP_URL}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        console.log('Fetched data:', data);
-        const filteredData = data.filter(row => row[11] === userId); // กรองข้อมูลตาม userId (คอลัมน์ที่ 11)
+    // ฟังก์ชันดึงข้อมูลจาก Web App (นำส่วนนี้ไปทับฟังก์ชันเดิมใน HTML)
+async function fetchData(userId) {
+  document.getElementById('loading').style.display = 'block';
+  try {
+    // ต้องแน่ใจว่า WEB_APP_URL ใน Config.js คือ URL ที่ได้จาก Deploy ล่าสุด
+    const response = await fetch(`${WEB_APP_URL}`, {
+      method: 'GET',
+      mode: 'cors'
+    });
+    
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const data = await response.json();
+    console.log('Fetched data:', data);
+    
+    // กรองข้อมูลตาม userId (คอลัมน์ที่ 11 หรือ index 11 ของแถว)
+    const filteredData = data.filter(row => row[11] === userId);
 
-        // แสดงชื่อและรหัสพนักงานจากแถวสุดท้าย
-        if (filteredData.length > 0) {
-          const lastRow = filteredData[filteredData.length - 1];
-          document.getElementById('name-info').textContent = lastRow[2];
-          document.getElementById('employee-id-info').textContent = lastRow[3];
-        }
-
-        buildTable('data-table', filteredData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        document.getElementById('data-table').innerHTML = '<tr><td colspan="3" class="text-center">เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาตรวจสอบคอนโซลสำหรับรายละเอียดเพิ่มเติม</td></tr>';
-      } finally {
-        document.getElementById('loading').style.display = 'none';
-      }
+    if (filteredData.length > 0) {
+      const lastRow = filteredData[filteredData.length - 1];
+      document.getElementById('name-info').textContent = lastRow[2]; // ชื่อ
+      document.getElementById('employee-id-info').textContent = lastRow[3]; // รหัส
     }
 
+    buildTable('data-table', filteredData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    document.getElementById('data-table').innerHTML = 
+      '<tr><td colspan="3" class="text-center p-4">ไม่พบข้อมูล หรือเกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>';
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
     // ฟังก์ชันจัดรูปแบบวันที่
     function formatDate(dateString) {
       const date = new Date(dateString);
